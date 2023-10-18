@@ -456,8 +456,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f5dc24c5ff43604690be6a9bbde955f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointPrefab: {fileID: 4162253840061832778, guid: d045028eaa740774aa239c344365568b,
-    type: 3}
+  instanceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  instanceMaterial: {fileID: 2100000, guid: ffae04d26e484b64ebdb4ef08ab62f7f, type: 2}
 --- !u!4 &1165838172
 Transform:
   m_ObjectHideFlags: 0
