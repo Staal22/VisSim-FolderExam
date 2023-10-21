@@ -545,6 +545,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1165838172}
   - component: {fileID: 1165838171}
+  - component: {fileID: 1165838173}
   m_Layer: 0
   m_Name: TerrainManager
   m_TagString: Untagged
@@ -559,7 +560,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1165838170}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f5dc24c5ff43604690be6a9bbde955f, type: 3}
   m_Name: 
@@ -581,6 +582,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1165838173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165838170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9269c6d9848ba24e98a01722d1e8cad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  computeShader: {fileID: 7200000, guid: 8f2408b78a7313648a57213a2b907adc, type: 3}
+  material: {fileID: 2100000, guid: ffae04d26e484b64ebdb4ef08ab62f7f, type: 2}
+  pointMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1781757941
 GameObject:
   m_ObjectHideFlags: 0
