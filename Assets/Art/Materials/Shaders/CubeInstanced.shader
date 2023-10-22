@@ -1,4 +1,4 @@
-Shader "Tarodev/CubeInstanced"
+Shader "Custom/CubeInstanced"
 {
     Properties
     {
@@ -24,9 +24,8 @@ Shader "Tarodev/CubeInstanced"
 
             float4 _FarColor;
 
-            StructuredBuffer<float4> position_buffer;
-            // StructuredBuffer<float4> position_buffer_1;
-            // StructuredBuffer<float4> position_buffer_2;
+            StructuredBuffer<float4> position_buffer_1;
+            StructuredBuffer<float4> position_buffer_2;
             float4 color_buffer[8];
 
             struct attributes
@@ -46,12 +45,9 @@ Shader "Tarodev/CubeInstanced"
 
             varyings vert(attributes v, const uint instance_id : SV_InstanceID)
             {
-                // float4 start = position_buffer_1[instance_id];
-                // float4 end = position_buffer_2[instance_id];
+                float4 start = position_buffer_1[instance_id];
+                float4 end = position_buffer_2[instance_id];
 
-                float4 start = position_buffer[instance_id];
-                float4 end = position_buffer[instance_id];
-                
                 const float t = (sin(_Time.y + start.w) + 1) / 2;
 
                 const float3 world_start = start.xyz + v.vertex.xyz;
