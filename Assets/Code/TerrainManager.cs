@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class TerrainManager : MonoBehaviour
@@ -39,39 +40,30 @@ public class TerrainManager : MonoBehaviour
 
     private void InitializePointData()
     {
-        _points = LoadPositionsFromFile(OutputFilePath);
+        _points = LoadPositionsFromFile(OutputFilePath).ToArray();
     }
 
     private void UpdateBuffers()
     {
-        // positions
+        // Release old resources and calculate new size
+        _matricesBuffer?.Release();
         _positionBuffer?.Release();
         _positionBuffer = new ComputeBuffer(_count, 16);
         
-        // Create a matrix array to hold the position and rotation of each instance
-        int numInstances = _points.Length;
-        _matrices = new Matrix4x4[numInstances];
-        
-        // Create a compute buffer to hold the matrix data on the GPU
-        _matricesBuffer = new ComputeBuffer(numInstances, sizeof(float) * 16, ComputeBufferType.Default);
-        for (int i = 0; i < _points.Length; i++)
-        {
+        // create an array to hold Vector4 data
+        var vectors = new Vector4[_points.Length];
+
+        Parallel.For(0, vectors.Length, i => {
             var pos = _points[i];
             var unityPos = new Vector3(pos.x - 260000f, pos.z, pos.y - 6660000f);
-            _matrices[i] = Matrix4x4.TRS(unityPos, Quaternion.identity, Vector3.one);
-        }
-        _matricesBuffer.SetData(_matrices);
-        
-        var vectors = new Vector4[_matrices.Length];
-        for (int i = 0; i < _matrices.Length; i++)
-        {
-            vectors[i] = _matrices[i].GetColumn(3);
-        }
+            vectors[i] = Matrix4x4.TRS(unityPos, Quaternion.identity, Vector3.one).GetColumn(3);
+        });
+
         _positionBuffer.SetData(vectors);
         instanceMaterial.SetBuffer("position_buffer", _positionBuffer);
-        
+
         // vertices
-        uint[] args = { instanceMesh.GetIndexCount(0), (uint)numInstances, instanceMesh.GetIndexStart(0), instanceMesh.GetBaseVertex(0), 0 };
+        uint[] args = { instanceMesh.GetIndexCount(0), (uint)_points.Length, instanceMesh.GetIndexStart(0), instanceMesh.GetBaseVertex(0), 0 };
         _argsBuffer.SetData(args);
     }
     
@@ -87,7 +79,7 @@ public class TerrainManager : MonoBehaviour
 
     private void OnDisable()
     {
-        _matricesBuffer?.Dispose();
+        _matricesBuffer?.Release();
         _matricesBuffer = null;
         
         _positionBuffer?.Release();
