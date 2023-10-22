@@ -11,15 +11,13 @@ public class TerrainManager : MonoBehaviour
     private const string OutputFilePath = "Assets/StreamingAssets/terrain.txt";
     
     private ComputeBuffer _matricesBuffer;
-    private ComputeBuffer _positionBuffer1, _positionBuffer2;
+    private ComputeBuffer _positionBuffer;
     private ComputeBuffer _argsBuffer;
-    private Matrix4x4[] matrices;
+    private Matrix4x4[] _matrices;
 
     private readonly uint[] _args = { 0, 0, 0, 0, 0 };
     private Vector3[] _points;
     private int _count;
-    
-    [field: SerializeField] public Color[] ColorArray { get; private set; }
     
     private void Awake()
     {
@@ -47,14 +45,12 @@ public class TerrainManager : MonoBehaviour
     private void UpdateBuffers()
     {
         // positions
-        _positionBuffer1?.Release();
-        _positionBuffer2?.Release();
-        _positionBuffer1 = new ComputeBuffer(_count, 16);
-        _positionBuffer2 = new ComputeBuffer(_count, 16);
+        _positionBuffer?.Release();
+        _positionBuffer = new ComputeBuffer(_count, 16);
         
         // Create a matrix array to hold the position and rotation of each instance
         int numInstances = _points.Length;
-        matrices = new Matrix4x4[numInstances];
+        _matrices = new Matrix4x4[numInstances];
         
         // Create a compute buffer to hold the matrix data on the GPU
         _matricesBuffer = new ComputeBuffer(numInstances, sizeof(float) * 16, ComputeBufferType.Default);
@@ -62,20 +58,17 @@ public class TerrainManager : MonoBehaviour
         {
             var pos = _points[i];
             var unityPos = new Vector3(pos.x - 260000f, pos.z, pos.y - 6660000f);
-            matrices[i] = Matrix4x4.TRS(unityPos, Quaternion.identity, Vector3.one);
+            _matrices[i] = Matrix4x4.TRS(unityPos, Quaternion.identity, Vector3.one);
         }
-        _matricesBuffer.SetData(matrices);
+        _matricesBuffer.SetData(_matrices);
         
-        var vectors = new Vector4[matrices.Length];
-        for (int i = 0; i < matrices.Length; i++)
+        var vectors = new Vector4[_matrices.Length];
+        for (int i = 0; i < _matrices.Length; i++)
         {
-            vectors[i] = matrices[i].GetColumn(3);
+            vectors[i] = _matrices[i].GetColumn(3);
         }
-        _positionBuffer1.SetData(vectors);
-        _positionBuffer2.SetData(vectors);
-        instanceMaterial.SetBuffer("position_buffer_1", _positionBuffer1);
-        instanceMaterial.SetBuffer("position_buffer_2", _positionBuffer2);
-        instanceMaterial.SetColorArray("color_buffer", ColorArray);
+        _positionBuffer.SetData(vectors);
+        instanceMaterial.SetBuffer("position_buffer", _positionBuffer);
         
         // vertices
         uint[] args = { instanceMesh.GetIndexCount(0), (uint)numInstances, instanceMesh.GetIndexStart(0), instanceMesh.GetBaseVertex(0), 0 };
@@ -97,11 +90,8 @@ public class TerrainManager : MonoBehaviour
         _matricesBuffer?.Dispose();
         _matricesBuffer = null;
         
-        _positionBuffer1?.Release();
-        _positionBuffer1 = null;
-
-        _positionBuffer2?.Release();
-        _positionBuffer2 = null;
+        _positionBuffer?.Release();
+        _positionBuffer = null;
 
         _argsBuffer?.Release();
         _argsBuffer = null;

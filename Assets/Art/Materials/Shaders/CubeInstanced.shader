@@ -24,9 +24,7 @@ Shader "Custom/CubeInstanced"
 
             float4 _FarColor;
 
-            StructuredBuffer<float4> position_buffer_1;
-            StructuredBuffer<float4> position_buffer_2;
-            float4 color_buffer[8];
+            StructuredBuffer<float4> position_buffer;
 
             struct attributes
             {
@@ -45,16 +43,12 @@ Shader "Custom/CubeInstanced"
 
             varyings vert(attributes v, const uint instance_id : SV_InstanceID)
             {
-                float4 start = position_buffer_1[instance_id];
-                float4 end = position_buffer_2[instance_id];
+                float4 position = position_buffer[instance_id];
+                
+                const float3 world_position = position.xyz + v.vertex.xyz;
 
-                const float t = (sin(_Time.y + start.w) + 1) / 2;
-
-                const float3 world_start = start.xyz + v.vertex.xyz;
-                const float3 world_end = end.xyz + v.vertex.xyz;
-
-                const float3 pos = lerp(world_start, world_end, t);
-                const float3 color = lerp(color_buffer[end.w % 8], _FarColor, t);
+                const float3 pos = world_position;
+                const float3 color = float3(0.4f,0.4f,0.4f);
 
                 varyings o;
                 o.vertex = mul(UNITY_MATRIX_VP, float4(pos, 1.0f));
