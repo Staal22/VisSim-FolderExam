@@ -544,7 +544,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1165838172}
-  - component: {fileID: 1165838173}
+  - component: {fileID: 1165838174}
   m_Layer: 0
   m_Name: TerrainManager
   m_TagString: Untagged
@@ -567,7 +567,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1165838173
+--- !u!114 &1165838174
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -576,21 +576,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1165838170}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f5dc24c5ff43604690be6a9bbde955f, type: 3}
+  m_Script: {fileID: 11500000, guid: 80384ab7e75a10b48ab51fee0c01a4a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   instanceMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   instanceMaterial: {fileID: 2100000, guid: b3cf27401e9154140a369843b001d5a5, type: 2}
-  <ColorArray>k__BackingField:
-  - {r: 1, g: 0.60784316, b: 0, a: 1}
-  - {r: 0.007843138, g: 1, b: 0, a: 1}
-  - {r: 1, g: 0, b: 0.77254903, a: 1}
-  - {r: 0, g: 0.93333334, b: 1, a: 1}
-  - {r: 0.827451, g: 0, b: 1, a: 1}
-  - {r: 1, g: 0, b: 0.019607844, a: 1}
-  - {r: 0, g: 0.08627451, b: 1, a: 1}
-  - {r: 0.79607844, g: 1, b: 0, a: 1}
-  - {r: 0, g: 1, b: 0.654902, a: 1}
 --- !u!1 &1781757941
 GameObject:
   m_ObjectHideFlags: 0
