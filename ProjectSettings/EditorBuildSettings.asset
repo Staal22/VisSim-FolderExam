@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Level/Scenes/PointCloud.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Level/Scenes/TriangleSurface.unity
+    guid: acfa19f549118d045bfe6a4e0abb2124
   m_configObjects: {}

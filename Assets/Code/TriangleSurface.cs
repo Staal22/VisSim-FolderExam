@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DelaunatorSharp;
 
 public class TriangleSurface : MonoBehaviour
 {
@@ -11,8 +12,6 @@ public class TriangleSurface : MonoBehaviour
     private Vector3[] _points;
     private Vector3[] _vertices;
     private int _count;
-    private const int SuperTriangleSize = 3;
-    private const int TriangleSize = 3;
 
     private void Awake()
     {
@@ -36,30 +35,34 @@ public class TriangleSurface : MonoBehaviour
     private void CreateMesh()
     {
         Mesh newMesh = new Mesh();
-        int vertices = 1000;
-        int step = 4800000/vertices;
         // mesh vertex limit in Unity is 65536 - 16 bit index buffer
+        int vertices = 65535;
+        // we need to get to the final index of points[], while only stepping through vertices[] one at a time
+        int step = 4800000/vertices;
         _vertices = new Vector3[vertices];
         int j = 0;
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < vertices; i++)
         {
             _vertices[i] = _points[j];
             j+=step;
         }
         
+        // we have vertices, now we get triangles(indices)
+        var points = new IPoint[_vertices.Length];
+        for (int i = 0; i < _vertices.Length; i++)
+        {
+            points[i] = new Point(_vertices[i].x, _vertices[i].z);
+        }
+        Delaunator delaunator = new Delaunator(points);
+        int[] triangles = delaunator.Triangles;
+        
         newMesh.vertices = _vertices;
-        // newMesh.triangles = Triangulation(_vertices.ToList());
+        newMesh.triangles = triangles;
         
         newMesh.RecalculateNormals();
         newMesh.RecalculateBounds();
         
         _mesh = newMesh;
         _meshFilter.mesh = newMesh;
-
-        // for (int i = 0; i < _mesh.vertices.Length; i++)
-        // {
-        //     Debug.Log(_mesh.vertices[i].x + " " + _mesh.vertices[i].y + " " + _mesh.vertices[i].z);
-        // }
-        
     }
 }

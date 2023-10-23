@@ -6,11 +6,12 @@ using UnityEngine;
 
 public static class TerrainTools
 {
-    private const string XYZFilePath = "Assets/StreamingAssets/terrain.txt";
+    private const string XYZPath = "Assets/StreamingAssets/terrain.txt";
+    private const string TriangleIndicesPath = "Assets/StreamingAssets/triangles.txt";
     
     public static Vector3[] GetPoints()
     {
-        return LoadPositionsFromFile(XYZFilePath).ToArray();
+        return LoadPositionsFromFile(XYZPath).ToArray();
     }
     
     private static Vector3[] LoadPositionsFromFile(string path)
