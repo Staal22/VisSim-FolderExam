@@ -48,6 +48,44 @@ public class TriangleSurface : MonoBehaviour
         }
         
         // we have vertices, now we get triangles(indices)
+        
+        // create a regular triangulation (vector grid with a certain resolution) - xz grid due to y being up in Unity
+        
+        // find xMax and zMax in vertices, also xMin and zMin
+        float xMax = 0;
+        float zMax = 0;
+        float xMin = 0;
+        float zMin = 0;
+        for (int i = 0; i < _vertices.Length; i++)
+        {
+            if (_vertices[i].x > xMax)
+            {
+                xMax = _vertices[i].x;
+            }
+            if (_vertices[i].z > zMax)
+            {
+                zMax = _vertices[i].z;
+            }
+            if (_vertices[i].x < xMin)
+            {
+                xMin = _vertices[i].x;
+            }
+            if (_vertices[i].z < zMin)
+            {
+                zMin = _vertices[i].z;
+            }
+        }
+        
+        // create corners of the grid
+        var topLeft = new Vector3(xMin, 0, zMax);
+        var topRight = new Vector3(xMax, 0, zMax);
+        var bottomLeft = new Vector3(xMin, 0, zMin);
+        var bottomRight = new Vector3(xMax, 0, zMin);
+        
+        
+        
+        
+        
         var points = new IPoint[_vertices.Length];
         for (int i = 0; i < _vertices.Length; i++)
         {
