@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DelaunatorSharp;
 
 public class TriangleSurface : MonoBehaviour
 {
@@ -38,24 +37,22 @@ public class TriangleSurface : MonoBehaviour
         // mesh vertex limit in Unity is 65536 - 16 bit index buffer
         int vertices = 65535;
         // we need to get to the final index of points[], while only stepping through vertices[] one at a time
-        int step = 4800000/vertices;
+        int step = _points.Length/vertices;
         _vertices = new Vector3[vertices];
-        int j = 0;
+        int index = 0;
         for (int i = 0; i < vertices; i++)
         {
-            _vertices[i] = _points[j];
-            j+=step;
+            _vertices[i] = _points[index];
+            index+=step;
         }
         
         // we have vertices, now we get triangles(indices)
-        
         // create a regular triangulation (vector grid with a certain resolution) - xz grid due to y being up in Unity
-        
         // find xMax and zMax in vertices, also xMin and zMin
-        float xMax = 0;
-        float zMax = 0;
-        float xMin = 0;
-        float zMin = 0;
+        float xMax = float.MinValue;
+        float zMax = float.MinValue;
+        float xMin = float.MaxValue;
+        float zMin = float.MaxValue;
         for (int i = 0; i < _vertices.Length; i++)
         {
             if (_vertices[i].x > xMax)
@@ -75,6 +72,7 @@ public class TriangleSurface : MonoBehaviour
                 zMin = _vertices[i].z;
             }
         }
+        print(zMin);
         
         // create corners of the grid
         var topLeft = new Vector3(xMin, 0, zMax);
@@ -82,20 +80,85 @@ public class TriangleSurface : MonoBehaviour
         var bottomLeft = new Vector3(xMin, 0, zMin);
         var bottomRight = new Vector3(xMax, 0, zMin);
         
+        // create a grid of points
+        var grid = new List<Vector3>();
+        var gridWidth = 100;
+        var gridHeight = 100;
+        var gridStepX = (xMax - xMin) / gridWidth;
+        var gridStepZ = (zMax - zMin) / gridHeight;
+        for (int i = 0; i < gridWidth; i++)
+        {
+            for (int k = 0; k < gridHeight; k++)
+            {
+                // find points within current square and take average of their y values
+                var pointsInSquare = new List<Vector3>();
+                var yAvg = 0f;
+                for (int j = 0; j < _vertices.Length; j++)
+                {
+                    if (_vertices[j].x >= topLeft.x + i * gridStepX && _vertices[j].x < topLeft.x + (i + 1) * gridStepX &&
+                        _vertices[j].z <= topLeft.z - k * gridStepZ && _vertices[j].z > topLeft.z - (k + 1) * gridStepZ)
+                    {
+                        pointsInSquare.Add(_vertices[j]);
+                    }
+                }
+                foreach (var pointSq in pointsInSquare)
+                {
+                    yAvg += pointSq.y;
+                }
+
+                if (pointsInSquare.Count != 0)
+                {
+                    yAvg /= pointsInSquare.Count;
+                }
+                else
+                {
+                    // get average from neighbouring squares
+                    var pointsInNeighbouringSquares = new List<Vector3>();
+                    var yAvgNeighbouring = 0f;
+                    for (int j = 0; j < _vertices.Length; j++)
+                    {
+                        if (_vertices[j].x >= topLeft.x + (i - 1) * gridStepX && _vertices[j].x < topLeft.x + (i + 2) * gridStepX &&
+                            _vertices[j].z <= topLeft.z - (k - 1) * gridStepZ && _vertices[j].z > topLeft.z - (k + 2) * gridStepZ)
+                        {
+                            pointsInNeighbouringSquares.Add(_vertices[j]);
+                        }
+                    }
+                    foreach (var pointSq in pointsInNeighbouringSquares)
+                    {
+                        yAvgNeighbouring += pointSq.y;
+                    }
+                    yAvgNeighbouring /= pointsInNeighbouringSquares.Count;
+                    if (pointsInNeighbouringSquares.Count != 0)
+                    {
+                        yAvg = yAvgNeighbouring;
+                    }
+                }
+                
+                var point = new Vector3(topLeft.x + i * gridStepX, yAvg, topLeft.z - k * gridStepZ);
+                grid.Add(point);
+            }
+        }
+        _vertices = grid.ToArray();
         
-        
-        
-        
-        var points = new IPoint[_vertices.Length];
+        // create triangles
+        var triangles = new List<int>();
         for (int i = 0; i < _vertices.Length; i++)
         {
-            points[i] = new Point(_vertices[i].x, _vertices[i].z);
+            if (i % gridWidth == gridWidth - 1 || i / gridWidth == gridHeight - 1)
+            {
+                continue;
+            }
+            triangles.Add(i);
+            triangles.Add(i + gridWidth);
+            triangles.Add(i + 1);
+            
+            triangles.Add(i + 1);
+            triangles.Add(i + gridWidth);
+            triangles.Add(i + gridWidth + 1);
         }
-        Delaunator delaunator = new Delaunator(points);
-        int[] triangles = delaunator.Triangles;
         
         newMesh.vertices = _vertices;
-        newMesh.triangles = triangles;
+        newMesh.triangles = triangles.ToArray();
         
         newMesh.RecalculateNormals();
         newMesh.RecalculateBounds();
