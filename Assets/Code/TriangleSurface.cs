@@ -72,13 +72,9 @@ public class TriangleSurface : MonoBehaviour
                 zMin = _vertices[i].z;
             }
         }
-        print(zMin);
         
-        // create corners of the grid
+        // top left corner, we construct the grid from there
         var topLeft = new Vector3(xMin, 0, zMax);
-        var topRight = new Vector3(xMax, 0, zMax);
-        var bottomLeft = new Vector3(xMin, 0, zMin);
-        var bottomRight = new Vector3(xMax, 0, zMin);
         
         // create a grid of points
         var grid = new List<Vector3>();
@@ -133,7 +129,6 @@ public class TriangleSurface : MonoBehaviour
                         yAvg = yAvgNeighbouring;
                     }
                 }
-                
                 var point = new Vector3(topLeft.x + i * gridStepX, yAvg, topLeft.z - k * gridStepZ);
                 grid.Add(point);
             }
