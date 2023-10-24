@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class TriangleSurface : MonoBehaviour
 {
-    public List<Vector3[]> Triangles;
-    
     private MeshFilter _meshFilter;
 
     private const int VertexLimit = 65535;
@@ -23,7 +21,6 @@ public class TriangleSurface : MonoBehaviour
 
     private void Start()
     {
-        Triangles = new List<Vector3[]>();
         _points = TerrainTools.GetPoints();
         for (int i = 0; i < _points.Length; i++)
         {
@@ -48,9 +45,10 @@ public class TriangleSurface : MonoBehaviour
 
         _vertices = grid.ToArray();
 
-        var triangles = GenerateTriangles(); // Generates the triangles' indices
-
-        GenerateNewMesh(triangles); // Creates a new mesh and assigns it to _mesh and _meshFilter.mesh
+        var triangles = GenerateTriangles(); // Generates the triangulation
+        var indices = triangles.SelectMany(t => t.Indices).ToArray();
+        
+        GenerateNewMesh(indices); // Creates a new mesh and assigns it to _mesh and _meshFilter.mesh
     }
 
     private void SetUpVertices()
@@ -100,21 +98,48 @@ public class TriangleSurface : MonoBehaviour
         return grid;
     }
     
-    private List<int> GenerateTriangles()
+    // private List<int> GenerateTriangles()
+    private List<Triangle> GenerateTriangles()
     {
-        var triangles = new List<int>();
+        // var triangles = new List<int>();
+        var triangles = new List<Triangle>();
         for (int i = 0; i < _vertices.Length; i++)
         {
             if (i % GridWidth == GridWidth - 1 || i / GridWidth == GridHeight - 1) continue;
-        
-            triangles.Add(i);
-            triangles.Add(i + GridWidth);
-            triangles.Add(i + 1);
-            triangles.Add(i + 1);
-            triangles.Add(i + GridWidth);
-            triangles.Add(i + GridWidth + 1);
+            
+            triangles.Add(new Triangle(new Vector3[3] {_vertices[i], _vertices[i + GridWidth], _vertices[i + 1]}, new int[3] {i, i + GridWidth, i + 1}, i));
+            triangles.Add(new Triangle(new Vector3[3] {_vertices[i + 1], _vertices[i + GridWidth], _vertices[i + GridWidth + 1]}, new int[3] {i + 1, i + GridWidth, i + GridWidth + 1}, i + 1));
         }
 
+        
+        // map each vertex to the triangles it is part of
+        var vertexToTriangles = new Dictionary<int, List<Triangle>>();
+        foreach (var triangle in triangles)
+        {
+            foreach (var idx in triangle.Indices)
+            {
+                if (!vertexToTriangles.ContainsKey(idx))
+                {
+                    vertexToTriangles[idx] = new List<Triangle>();
+                }
+                vertexToTriangles[idx].Add(triangle);
+            }
+        }
+        // find neighbours
+        foreach (var triangle in triangles)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                var idx1 = triangle.Indices[i];
+                var idx2 = triangle.Indices[(i + 1) % 3];
+                var neighbour = vertexToTriangles[idx1].Intersect(vertexToTriangles[idx2]).FirstOrDefault(t => t != triangle);
+                if (neighbour != null)
+                {
+                    triangle.Neighbours[i] = neighbour.ID;
+                }
+            }
+        }
+        
         return triangles;
     }
 
