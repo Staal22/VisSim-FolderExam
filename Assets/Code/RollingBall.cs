@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class RollingBall : MonoBehaviour
 {
-    [SerializeField] private TriangleSurface triangleSurface;
+    private TriangleSurface _triangleSurface;
     private const float Mass = 1;
     private int _triangleID;
     private int _nextTriangleID;
@@ -14,7 +14,7 @@ public class RollingBall : MonoBehaviour
     private bool _rolling;
     private bool _rollingDown;
     private float _height;
-    private Vector3 _oldVelocity;
+    private Vector3 _oldVelocity = Vector3.zero;
 
     private void Awake()
     {
@@ -23,22 +23,29 @@ public class RollingBall : MonoBehaviour
 
     private void Start()
     {
-        gameObject.transform.position = new Vector3(_radius, 19.0f, _radius);
-        _oldVelocity = Vector3.zero;
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down * 50, out hit))
+        {
+            _triangleSurface = hit.collider.gameObject.GetComponent<TriangleSurface>();
+        }
+        else
+        {
+            Debug.LogError("No triangle surface found");
+        }
     }
 
     private void FixedUpdate()
     {
-        if (triangleSurface == null)
+        if (_triangleSurface == null)
             return;
         
         _rollingDown = false;
         var unitNormal = Vector3.zero;
-        var triangles = triangleSurface.Triangles;
+        var triangles = _triangleSurface.Triangles;
         
         var gravity = Physics.gravity * Mass;
         
-        _triangleID = triangleSurface.FindTriangle(transform.position);
+        _triangleID = _triangleSurface.FindTriangle(transform.position);
         if (_triangleID != -1)
         {
             unitNormal = triangles[_triangleID].Normal;
@@ -73,7 +80,7 @@ public class RollingBall : MonoBehaviour
 
         var position = transform.position + velocity * Time.fixedDeltaTime;
         
-        _nextTriangleID = triangleSurface.FindTriangle(position);
+        _nextTriangleID = _triangleSurface.FindTriangle(position);
         if (_nextTriangleID != _triangleID && _nextTriangleID != -1 && _triangleID != -1)
         {
             var nextTriangleNormal = triangles[_nextTriangleID].Normal;
