@@ -6,16 +6,16 @@ using UnityEngine;
 
 public class TriangleSurface : MonoBehaviour
 {
-    private MeshFilter _meshFilter;
+    public List<Triangle> Triangles;
 
     private const int VertexLimit = 65535;
     private const int GridWidth = 100;
     private const int GridHeight = 100;
     
+    private MeshFilter _meshFilter;
+    
     private Vector3[] _points;
     private Vector3[] _vertices;
-    
-    private List<Triangle> _triangles;
     private int[] _indices;
     
     private void Awake()
@@ -34,15 +34,15 @@ public class TriangleSurface : MonoBehaviour
         }
         CreateMesh();
     }
-
+    
     public int[] GetTriangleInfo()
     {
         // output example
         // idx1, idx2, idx3, neighbour1, neighbour2, neighbour3
-        var output = new int[_triangles.Count * 6];
-        for (int i = 0; i < _triangles.Count; i++)
+        var output = new int[Triangles.Count * 6];
+        for (int i = 0; i < Triangles.Count; i++)
         {
-            var triangle = _triangles[i];
+            var triangle = Triangles[i];
             output[i * 6] = triangle.Indices[0];
             output[i * 6 + 1] = triangle.Indices[1];
             output[i * 6 + 2] = triangle.Indices[2];
@@ -52,6 +52,26 @@ public class TriangleSurface : MonoBehaviour
         }
 
         return output;
+    }
+    
+    public int FindTriangle(Vector3 point)
+    {
+        if (Triangles.Count == 0)
+            return -1;
+        foreach (var triangle in Triangles)
+        {
+            Vector3 barycentricCoordinates = Utilities.Barycentric(
+                triangle.Vertices[0],
+                triangle.Vertices[1],
+                triangle.Vertices[2],
+                point
+            );
+            if (Utilities.IsInsideTriangle(barycentricCoordinates))
+            {
+                return triangle.ID;
+            }
+        }
+        return -1; // point is not within any triangle
     }
     
     private void CreateMesh()
@@ -124,19 +144,19 @@ public class TriangleSurface : MonoBehaviour
     
     private List<Triangle> GenerateTriangles()
     {
-        _triangles = new List<Triangle>();
+        Triangles = new List<Triangle>();
         int triangleId = 0;
         for (int i = 0; i < _vertices.Length; i++)
         {
             if (i % GridWidth == GridWidth - 1 || i / GridWidth == GridHeight - 1) continue;
             
-            _triangles.Add(new Triangle(new Vector3[3] {_vertices[i], _vertices[i + GridWidth], _vertices[i + 1]}, new int[3] {i, i + GridWidth, i + 1}, triangleId++));
-            _triangles.Add(new Triangle(new Vector3[3] {_vertices[i + 1], _vertices[i + GridWidth], _vertices[i + GridWidth + 1]}, new int[3] {i + 1, i + GridWidth, i + GridWidth + 1}, triangleId++));
+            Triangles.Add(new Triangle(new Vector3[3] {_vertices[i], _vertices[i + GridWidth], _vertices[i + 1]}, new int[3] {i, i + GridWidth, i + 1}, triangleId++));
+            Triangles.Add(new Triangle(new Vector3[3] {_vertices[i + 1], _vertices[i + GridWidth], _vertices[i + GridWidth + 1]}, new int[3] {i + 1, i + GridWidth, i + GridWidth + 1}, triangleId++));
         }
         
         // map each vertex to the triangles it is part of
         var vertexToTriangles = new Dictionary<int, List<Triangle>>();
-        foreach (var triangle in _triangles)
+        foreach (var triangle in Triangles)
         {
             foreach (var idx in triangle.Indices)
             {
@@ -148,7 +168,7 @@ public class TriangleSurface : MonoBehaviour
             }
         }
         // find neighbours
-        foreach (var triangle in _triangles)
+        foreach (var triangle in Triangles)
         {
             for (int i = 0; i < 3; i++)
             {
@@ -163,8 +183,8 @@ public class TriangleSurface : MonoBehaviour
         }
         
         print("Number of vertices: " + _vertices.Length);
-        print("Number of triangles: " + _triangles.Count);
-        return _triangles;
+        print("Number of triangles: " + Triangles.Count);
+        return Triangles;
     }
 
     private void GenerateNewMesh(int[] triangles)
