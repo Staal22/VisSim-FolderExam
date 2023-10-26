@@ -4,7 +4,7 @@ using UnityEngine;
 ///     I did not write this. I found it here: https://gist.github.com/ashleydavis/f025c03a9221bc840a2b
 ///     Honestly, it's very inefficient and the code makes me cry, but it works fine
 /// </summary>
-public class StolenFreeCam : MonoBehaviour
+public class FreeCam : MonoBehaviour
 {
     /// <summary>
     ///     Normal speed of camera movement.

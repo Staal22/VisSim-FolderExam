@@ -24,13 +24,18 @@ public class RollingBall : MonoBehaviour
     private void Start()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down * 50, out hit))
+        if (Physics.Raycast(transform.position, Vector3.down * 300, out hit))
         {
             _triangleSurface = hit.collider.gameObject.GetComponent<TriangleSurface>();
+            // move down to the surface
+            transform.position = hit.point;
         }
         else
         {
-            Debug.LogError("No triangle surface found");
+            Debug.LogWarning("No triangle surface found, destroying self");
+            BallButton.Instance.ballCount--;
+            BallButton.Instance.textElement.text = "Plukk opp ball";
+            Destroy(gameObject);
         }
     }
 
@@ -50,18 +55,28 @@ public class RollingBall : MonoBehaviour
         {
             unitNormal = triangles[_triangleID].Normal;
             
-            Debug.Log("Triangle: " + _triangleID);
+            // Debug.Log("Triangle: " + _triangleID);
             
             Vector3 point = triangles[_triangleID].Vertices[0];
             var p = transform.position - point;
             var y = Vector3.Dot(p, unitNormal) * unitNormal;
             _rolling = y.magnitude < _radius;
-            Debug.Log("Rolling: " + _rolling);
+            // Debug.Log("Rolling: " + _rolling);
         }
         else
         {
-            _rolling = false;
-            Debug.Log("No triangle found");
+            if (transform.position.y < 300)
+            {
+                Debug.LogWarning("Falt av planet, ødelegger ball");
+                BallButton.Instance.ballCount--;
+                if (BallButton.Instance.textElement.text == "Maks antall baller nådd")
+                    BallButton.Instance.textElement.text = "Plukk opp ball";
+                Destroy(gameObject);
+            }
+            // Debug.LogWarning("No triangle found, destroying self");
+            // BallButton.Instance.ballCount--;
+            // BallButton.Instance.text.text = "Plukk opp ball";
+            // Destroy(gameObject);
         }
         
         var surfaceNormal = -Vector3.Dot(gravity, unitNormal) * unitNormal;
@@ -78,48 +93,60 @@ public class RollingBall : MonoBehaviour
         // Draw debug line for velocity
         Debug.DrawRay(transform.position, velocity, Color.green);
 
+        if (_rolling)
+        {
+            var _rollingDown = Vector3.Dot(velocity, unitNormal) < 0;
+            if (_rollingDown)
+            {
+                velocity = new Vector3(velocity.x, 0, velocity.z);
+            }
+        }
+        
         var position = transform.position + velocity * Time.fixedDeltaTime;
         
-        _nextTriangleID = _triangleSurface.FindTriangle(position);
-        if (_nextTriangleID != _triangleID && _nextTriangleID != -1 && _triangleID != -1)
-        {
-            var nextTriangleNormal = triangles[_nextTriangleID].Normal;
-            var triangleNormal = triangles[_triangleID].Normal;
-            var reflectionNormal = (nextTriangleNormal + triangleNormal).normalized;
-
-            var crash = Vector3.Cross(nextTriangleNormal, triangleNormal).y > 0;
-            
-            if (crash)
-                velocity -= 2 * Vector3.Dot(velocity, reflectionNormal) * reflectionNormal;
-            else
-                _rolling = false;
-        }
+        // _nextTriangleID = _triangleSurface.FindTriangle(position);
+        // if (_nextTriangleID != _triangleID && _nextTriangleID != -1 && _triangleID != -1)
+        // {
+        //     var nextTriangleNormal = triangles[_nextTriangleID].Normal;
+        //     var triangleNormal = triangles[_triangleID].Normal;
+        //     var reflectionNormal = (nextTriangleNormal + triangleNormal).normalized;
+        //
+        //     var crash = Vector3.Cross(nextTriangleNormal, triangleNormal).y > 0;
+        //     
+        //     if (crash)
+        //         velocity -= 2 * Vector3.Dot(velocity, reflectionNormal) * reflectionNormal;
+        //     else
+        //         _rolling = false;
+        // }
 
         if (_rolling)
         {
-            _rollingDown = Vector3.Dot(velocity, unitNormal) < 0;
-            // Calculate the center of the triangle
-            Vector3 center = (triangles[_triangleID].Vertices[0] + triangles[_triangleID].Vertices[1] + triangles[_triangleID].Vertices[2]) / 3;
-            Debug.DrawLine(center, center + unitNormal, Color.yellow);
-
-            // Don't correct position when not pushing into surface.
-            if (_rollingDown)
+            if (_triangleID != -1)
             {
-                // Find plane height from barycentric coordinates.
-                var barycentricCoordinates = Utilities.Barycentric(
-                    triangles[_triangleID].Vertices[0],
-                    triangles[_triangleID].Vertices[1],
-                    triangles[_triangleID].Vertices[2],
-                    position
-                );
+                _rollingDown = Vector3.Dot(velocity, unitNormal) < 0;
+                // Calculate the center of the triangle
+                Vector3 center = (triangles[_triangleID].Vertices[0] + triangles[_triangleID].Vertices[1] + triangles[_triangleID].Vertices[2]) / 3;
+                Debug.DrawLine(center, center + unitNormal, Color.yellow);
+
+                // Don't correct position when not pushing into surface.
+                if (_rollingDown)
+                {
+                    // Find plane height from barycentric coordinates.
+                    var barycentricCoordinates = Utilities.Barycentric(
+                        triangles[_triangleID].Vertices[0],
+                        triangles[_triangleID].Vertices[1],
+                        triangles[_triangleID].Vertices[2],
+                        position
+                    );
         
-                _height = barycentricCoordinates.x * triangles[_triangleID].Vertices[0].y +
-                          barycentricCoordinates.y * triangles[_triangleID].Vertices[1].y +
-                          barycentricCoordinates.z * triangles[_triangleID].Vertices[2].y;
+                    _height = barycentricCoordinates.x * triangles[_triangleID].Vertices[0].y +
+                              barycentricCoordinates.y * triangles[_triangleID].Vertices[1].y +
+                              barycentricCoordinates.z * triangles[_triangleID].Vertices[2].y;
+                }
             }
         }
         // magic number because barycentric does not account for correct point of the ball when projecting ball onto the triangle
-        transform.position = _rollingDown ? new Vector3(position.x, _height + _radius - 0.3f , position.z) : position;
+        transform.position = _rollingDown ? new Vector3(position.x, _height + _radius - 0.2f , position.z) : position;
         _oldVelocity = velocity;
     }
 }

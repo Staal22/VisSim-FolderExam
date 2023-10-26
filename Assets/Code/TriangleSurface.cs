@@ -8,9 +8,9 @@ public class TriangleSurface : MonoBehaviour
 {
     public List<Triangle> Triangles;
 
-    private const int VertexLimit = 65535;
-    private const int GridWidth = 100;
-    private const int GridHeight = 100;
+    // GridWith * GridHeight must not exceed 65535, otherwise the mesh will not be generated
+    private const int GridWidth = 50;
+    private const int GridHeight = 50;
     
     private MeshFilter _meshFilter;
     
@@ -93,11 +93,22 @@ public class TriangleSurface : MonoBehaviour
         var indices = _indices;
         
         GenerateNewMesh(indices); // Creates a new mesh and assigns it to _mesh and _meshFilter.mesh
+        SetupCollision();
     }
 
+    private void SetupCollision()
+    {
+        // only used for ray-casting collision to spawn the ball on the surface
+        var meshCollider = GetComponent<MeshCollider>();
+        if (meshCollider != null)
+        {
+            meshCollider.sharedMesh = _meshFilter.mesh;
+        }
+    }
+    
     private void SetUpVertices()
     {
-        var vertices = VertexLimit;
+        var vertices = GridHeight * GridWidth;
         var step = _points.Length / vertices;
         _vertices = new Vector3[vertices];
 
