@@ -95,8 +95,12 @@ public class RollingBall : MonoBehaviour
 
         if (_rolling)
         {
-            var _rollingDown = Vector3.Dot(velocity, unitNormal) < 0;
-            if (_rollingDown)
+            // friction
+            var friction = -velocity * 0.01f;
+            velocity += friction;
+            
+            _rollingDown = Vector3.Dot(velocity, unitNormal) < 0;
+            if (_rollingDown && velocity.y < -5)
             {
                 velocity = new Vector3(velocity.x, 0, velocity.z);
             }
@@ -123,7 +127,6 @@ public class RollingBall : MonoBehaviour
         {
             if (_triangleID != -1)
             {
-                _rollingDown = Vector3.Dot(velocity, unitNormal) < 0;
                 // Calculate the center of the triangle
                 Vector3 center = (triangles[_triangleID].Vertices[0] + triangles[_triangleID].Vertices[1] + triangles[_triangleID].Vertices[2]) / 3;
                 Debug.DrawLine(center, center + unitNormal, Color.yellow);
@@ -146,7 +149,7 @@ public class RollingBall : MonoBehaviour
             }
         }
         // magic number because barycentric does not account for correct point of the ball when projecting ball onto the triangle
-        transform.position = _rollingDown ? new Vector3(position.x, _height + _radius - 0.2f , position.z) : position;
+        transform.position = _rollingDown ? new Vector3(position.x, _height + _radius - 0.3f , position.z) : position;
         _oldVelocity = velocity;
     }
 }
