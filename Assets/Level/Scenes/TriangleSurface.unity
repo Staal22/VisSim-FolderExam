@@ -123,6 +123,53 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &375051745
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 375051747}
+  - component: {fileID: 375051746}
+  m_Layer: 0
+  m_Name: RainManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &375051746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375051745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aecd37884040c04fabfc90c420e0907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rainDropPrefab: {fileID: 2089043474199185864, guid: 82502ffd2e8bdd34ab8f64d43e4258c6,
+    type: 3}
+  spawnIntervalRange: {x: 300, y: 250}
+--- !u!4 &375051747
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375051745}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 396.8, y: 600, z: 647.9}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1352955763
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,7 +467,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 3000
+  far clip plane: 4000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -1078,6 +1125,8 @@ MonoBehaviour:
   ballPrefab: {fileID: 2089043474199185864, guid: 0c9f511635ab98b4fac8fc318a09b22b,
     type: 3}
   mainCamera: {fileID: 1597525899}
+  textElement: {fileID: 0}
+  ballCount: 0
 --- !u!114 &9084638827101721823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1103,3 +1152,4 @@ SceneRoots:
   - {fileID: 1597525900}
   - {fileID: 1352955765}
   - {fileID: 7013267102513791925}
+  - {fileID: 375051747}

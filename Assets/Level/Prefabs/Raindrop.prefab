@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 2089043474199185864}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 778.47864, y: 296.03683, z: -93.82865}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 617cc7ad397449c4e82c9ef10713d50e, type: 2}
+  - {fileID: 2100000, guid: 54bba5e039930294a8eb75d86bdb7322, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -97,6 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92d4f1e69cdd3624a920c3003300da1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isRainDrop: 1
 --- !u!1 &9100212947075650763
 GameObject:
   m_ObjectHideFlags: 0

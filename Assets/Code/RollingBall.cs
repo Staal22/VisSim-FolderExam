@@ -6,15 +6,19 @@ using UnityEngine;
 
 public class RollingBall : MonoBehaviour
 {
-    private TriangleSurface _triangleSurface;
+    [SerializeField] private bool isRainDrop;
+    
     private const float Mass = 1;
+    private static readonly Vector3 Gravity = Physics.gravity * Mass;
+    
+    private TriangleSurface _triangleSurface;
+    private Vector3 _oldVelocity = Vector3.zero;
     private int _triangleID;
     private int _nextTriangleID;
     private float _radius;
     private bool _rolling;
     private bool _rollingDown;
     private float _height;
-    private Vector3 _oldVelocity = Vector3.zero;
 
     private void Awake()
     {
@@ -24,10 +28,12 @@ public class RollingBall : MonoBehaviour
     private void Start()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down * 300, out hit))
+        if (Physics.Raycast(transform.position, Vector3.down * 500, out hit))
         {
             _triangleSurface = hit.collider.gameObject.GetComponent<TriangleSurface>();
             // move down to the surface
+            if (isRainDrop)
+                return;
             transform.position = hit.point;
         }
         else
@@ -41,14 +47,9 @@ public class RollingBall : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_triangleSurface == null)
-            return;
-        
         _rollingDown = false;
         var unitNormal = Vector3.zero;
         var triangles = _triangleSurface.Triangles;
-        
-        var gravity = Physics.gravity * Mass;
         
         _triangleID = _triangleSurface.FindTriangle(transform.position);
         if (_triangleID != -1)
@@ -79,19 +80,19 @@ public class RollingBall : MonoBehaviour
             // Destroy(gameObject);
         }
         
-        var surfaceNormal = -Vector3.Dot(gravity, unitNormal) * unitNormal;
-        var force = gravity + surfaceNormal;
+        var surfaceNormal = -Vector3.Dot(Gravity, unitNormal) * unitNormal;
+        var force = Gravity + surfaceNormal;
         Vector3 acceleration;
         if (_rolling)
             acceleration = force / Mass;
         else
-            acceleration = gravity / Mass;
+            acceleration = Gravity / Mass;
         // Draw debug line for acceleration
-        Debug.DrawRay(transform.position, acceleration, Color.red);
+        // Debug.DrawRay(transform.position, acceleration, Color.red);
         
         var velocity = _oldVelocity + acceleration * Time.fixedDeltaTime;
         // Draw debug line for velocity
-        Debug.DrawRay(transform.position, velocity, Color.green);
+        // Debug.DrawRay(transform.position, velocity, Color.green);
 
         if (_rolling)
         {
@@ -128,8 +129,8 @@ public class RollingBall : MonoBehaviour
             if (_triangleID != -1)
             {
                 // Calculate the center of the triangle
-                Vector3 center = (triangles[_triangleID].Vertices[0] + triangles[_triangleID].Vertices[1] + triangles[_triangleID].Vertices[2]) / 3;
-                Debug.DrawLine(center, center + unitNormal, Color.yellow);
+                // Vector3 center = (triangles[_triangleID].Vertices[0] + triangles[_triangleID].Vertices[1] + triangles[_triangleID].Vertices[2]) / 3;
+                // Debug.DrawLine(center, center + unitNormal, Color.yellow);
 
                 // Don't correct position when not pushing into surface.
                 if (_rollingDown)
