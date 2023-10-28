@@ -7,9 +7,11 @@ using UnityEngine;
 public class RollingBall : MonoBehaviour
 {
     [SerializeField] private bool isRainDrop;
+    [SerializeField] private Mesh staticWaterForm;
     
     private const float Mass = 1;
     private static readonly Vector3 Gravity = Physics.gravity * Mass;
+    private const float VelocityThreshold = 0.1f;
     
     private TriangleSurface _triangleSurface;
     private Vector3 _oldVelocity = Vector3.zero;
@@ -19,6 +21,7 @@ public class RollingBall : MonoBehaviour
     private bool _rolling;
     private bool _rollingDown;
     private float _height;
+    private float _initTime;
 
     private void Awake()
     {
@@ -27,6 +30,7 @@ public class RollingBall : MonoBehaviour
 
     private void Start()
     {
+        _initTime = Time.fixedTime;
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.down * 500, out hit))
         {
@@ -146,5 +150,14 @@ public class RollingBall : MonoBehaviour
         // magic number because barycentric does not account for correct point of the ball when projecting ball onto the triangle
         transform.position = _rollingDown ? new Vector3(position.x, _height + _radius - 0.3f , position.z) : position;
         _oldVelocity = velocity;
+        
+        if (Math.Abs(_oldVelocity.x) < VelocityThreshold && Math.Abs(_oldVelocity.z) < VelocityThreshold && isRainDrop && _rolling && Time.fixedTime - _initTime > 2f)
+        {
+            transform.rotation = Quaternion.identity;
+            gameObject.GetComponent<MeshFilter>().mesh = staticWaterForm;
+            RainManager.Instance.dropCount--;
+            RainManager.Instance.rainCount.text = RainManager.Instance.dropCount.ToString();
+            enabled = false; // Disable this script to stop computation
+        }
     }
 }

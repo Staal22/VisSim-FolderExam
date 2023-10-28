@@ -7,11 +7,20 @@ using Random = UnityEngine.Random;
 
 public class RainManager : MonoBehaviour
 {
+    public static RainManager Instance;
+    
     [SerializeField] private GameObject rainDropPrefab;
     [SerializeField] private Vector2 spawnIntervalRange = Vector2.one * 10;
-    [SerializeField] private TextMeshProUGUI rainCount;
     
-    private int _dropCount;
+    public TextMeshProUGUI rainCount;
+    public int dropCount;
+    public int maxDropCount = 1000;
+    public bool limitReached;
+    
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -39,11 +48,16 @@ public class RainManager : MonoBehaviour
     
     void SpawnRainDrop()
     {
-        if (_dropCount >= 1000)
+        if (limitReached)
             return;
+        if (dropCount >= maxDropCount)
+        {
+            limitReached = true;
+            return;
+        }
         Instantiate(rainDropPrefab, GetRandomPosition(), Quaternion.identity);
         // Destroy(rainDrop, 5f);
-        _dropCount++;
-        rainCount.text = _dropCount.ToString();
+        dropCount++;
+        rainCount.text = dropCount.ToString();
     }
 }
