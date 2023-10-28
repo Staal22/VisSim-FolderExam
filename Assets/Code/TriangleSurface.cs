@@ -54,24 +54,52 @@ public class TriangleSurface : MonoBehaviour
         return output;
     }
     
-    public int FindTriangle(Vector3 point)
+    public int FindTriangle(Vector3 point, int initialTriangleId)
     {
-        if (Triangles.Count == 0)
-            return -1;
-        foreach (var triangle in Triangles)
+        if (initialTriangleId == -1)
         {
-            Vector3 barycentricCoordinates = Utilities.Barycentric(
-                triangle.Vertices[0],
-                triangle.Vertices[1],
-                triangle.Vertices[2],
-                point
-            );
-            if (Utilities.IsInsideTriangle(barycentricCoordinates))
+            // The initial triangle is not known/valid, perform the full search
+            foreach (var triangle in Triangles)
             {
-                return triangle.ID;
+                Vector3 barycentricCoordinates = Utilities.Barycentric(
+                    triangle.Vertices[0],
+                    triangle.Vertices[1],
+                    triangle.Vertices[2],
+                    point
+                );
+                if (Utilities.IsInsideTriangle(barycentricCoordinates))
+                {
+                    return triangle.ID;
+                }
             }
+
+            return -1; // point is not within any triangle
         }
-        return -1; // point is not within any triangle
+        else
+        {
+            // Initiate search from the initialTriangleId and check its neighbours
+            Triangle initialTriangle = Triangles[initialTriangleId];
+            List<Triangle> neighboringTriangles = initialTriangle.Neighbours
+                .Where(neighbourId => neighbourId != -1)
+                .Select(neighbourId => Triangles[neighbourId])
+                .ToList();            neighboringTriangles.Add(initialTriangle); // Also add initial triangle in the list to check for it as well.
+
+            foreach (var triangle in neighboringTriangles)
+            {
+                Vector3 barycentricCoordinates = Utilities.Barycentric(
+                    triangle.Vertices[0],
+                    triangle.Vertices[1],
+                    triangle.Vertices[2],
+                    point
+                );
+                if (Utilities.IsInsideTriangle(barycentricCoordinates))
+                {
+                    return triangle.ID;
+                }
+            }
+
+            return -1; // point is not within any triangle
+        }
     }
     
     private void CreateMesh()

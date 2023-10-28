@@ -13,7 +13,7 @@ public class RollingBall : MonoBehaviour
     
     private TriangleSurface _triangleSurface;
     private Vector3 _oldVelocity = Vector3.zero;
-    private int _triangleID;
+    private int _triangleID = -1;
     private int _nextTriangleID;
     private float _radius;
     private bool _rolling;
@@ -51,13 +51,11 @@ public class RollingBall : MonoBehaviour
         var unitNormal = Vector3.zero;
         var triangles = _triangleSurface.Triangles;
         
-        _triangleID = _triangleSurface.FindTriangle(transform.position);
+        _triangleID = _triangleSurface.FindTriangle(transform.position, _triangleID);
         if (_triangleID != -1)
         {
             unitNormal = triangles[_triangleID].Normal;
-            
             // Debug.Log("Triangle: " + _triangleID);
-            
             Vector3 point = triangles[_triangleID].Vertices[0];
             var p = transform.position - point;
             var y = Vector3.Dot(p, unitNormal) * unitNormal;
@@ -74,10 +72,6 @@ public class RollingBall : MonoBehaviour
                     BallButton.Instance.textElement.text = "Plukk opp ball";
                 Destroy(gameObject);
             }
-            // Debug.LogWarning("No triangle found, destroying self");
-            // BallButton.Instance.ballCount--;
-            // BallButton.Instance.text.text = "Plukk opp ball";
-            // Destroy(gameObject);
         }
         
         var surfaceNormal = -Vector3.Dot(Gravity, unitNormal) * unitNormal;

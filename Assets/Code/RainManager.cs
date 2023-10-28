@@ -1,19 +1,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class RainManager : MonoBehaviour
 {
-    [SerializeField] GameObject rainDropPrefab;
+    [SerializeField] private GameObject rainDropPrefab;
     [SerializeField] private Vector2 spawnIntervalRange = Vector2.one * 10;
+    [SerializeField] private TextMeshProUGUI rainCount;
     
     private int _dropCount;
 
     private void Start()
     {
-        InvokeRepeating(nameof(SpawnRainDrop), 0, 0.4f);
+        InvokeRepeating(nameof(SpawnRainDrop), 0, 0.1f);
     }
 
     private void OnDrawGizmosSelected()
@@ -37,10 +39,11 @@ public class RainManager : MonoBehaviour
     
     void SpawnRainDrop()
     {
-        if (_dropCount >= 100)
+        if (_dropCount >= 1000)
             return;
-        GameObject rainDrop = Instantiate(rainDropPrefab, GetRandomPosition(), Quaternion.identity);
+        Instantiate(rainDropPrefab, GetRandomPosition(), Quaternion.identity);
         // Destroy(rainDrop, 5f);
         _dropCount++;
+        rainCount.text = _dropCount.ToString();
     }
 }
