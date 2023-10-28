@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class TriangleSurface : MonoBehaviour
 {
+    public static TriangleSurface Instance;
     public List<Triangle> Triangles;
 
     // GridWith * GridHeight must not exceed 65535, otherwise the mesh will not be generated
@@ -20,6 +21,7 @@ public class TriangleSurface : MonoBehaviour
     
     private void Awake()
     {
+        Instance = this;
         _meshFilter = GetComponent<MeshFilter>();
     }
 
@@ -121,17 +123,6 @@ public class TriangleSurface : MonoBehaviour
         var indices = _indices;
         
         GenerateNewMesh(indices); // Creates a new mesh and assigns it to _mesh and _meshFilter.mesh
-        SetupCollision();
-    }
-
-    private void SetupCollision()
-    {
-        // only used for ray-casting collision to spawn the ball on the surface
-        var meshCollider = GetComponent<MeshCollider>();
-        if (meshCollider != null)
-        {
-            meshCollider.sharedMesh = _meshFilter.mesh;
-        }
     }
     
     private void SetUpVertices()

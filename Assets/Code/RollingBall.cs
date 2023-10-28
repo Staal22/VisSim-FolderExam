@@ -33,22 +33,7 @@ public class RollingBall : MonoBehaviour
     private void Start()
     {
         _initTime = Time.fixedTime;
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down * 500, out hit))
-        {
-            _triangleSurface = hit.collider.gameObject.GetComponent<TriangleSurface>();
-            // move down to the surface
-            if (isRainDrop)
-                return;
-            transform.position = hit.point;
-        }
-        else
-        {
-            Debug.LogWarning("No triangle surface found, destroying self");
-            BallButton.Instance.ballCount--;
-            BallButton.Instance.textElement.text = "Plukk opp ball";
-            Destroy(gameObject);
-        }
+        _triangleSurface = TriangleSurface.Instance;
     }
 
     private void FixedUpdate()
@@ -135,17 +120,7 @@ public class RollingBall : MonoBehaviour
                 // Don't correct position when not pushing into surface.
                 if (_rollingDown)
                 {
-                    // Find plane height from barycentric coordinates.
-                    var barycentricCoordinates = Utilities.Barycentric(
-                        triangles[_triangleID].Vertices[0],
-                        triangles[_triangleID].Vertices[1],
-                        triangles[_triangleID].Vertices[2],
-                        position
-                    );
-        
-                    _height = barycentricCoordinates.x * triangles[_triangleID].Vertices[0].y +
-                              barycentricCoordinates.y * triangles[_triangleID].Vertices[1].y +
-                              barycentricCoordinates.z * triangles[_triangleID].Vertices[2].y;
+                    _height = triangles[_triangleID].HeightAtPoint(position);
                 }
             }
         }
@@ -164,7 +139,7 @@ public class RollingBall : MonoBehaviour
 
     private void BecomeWaterBody()
     {
-        Instantiate(waterBodyPrefab, transform.position - new Vector3(0,-0.5f,0), Quaternion.identity);
+        Instantiate(waterBodyPrefab, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
     

@@ -9,13 +9,13 @@ public class RainManager : MonoBehaviour
 {
     public static RainManager Instance;
     
-    [SerializeField] private GameObject rainDropPrefab;
-    [SerializeField] private Vector2 spawnIntervalRange = Vector2.one * 10;
-    
     public TextMeshProUGUI rainCount;
     public int dropCount;
-    public int maxDropCount = 1000;
-    public bool limitReached;
+    
+    [SerializeField] private GameObject rainDropPrefab;
+    [SerializeField] private Vector2 spawnIntervalRange = Vector2.one * 10;
+    private const int MaxDropCount = 1000;
+    private bool _limitReached;
     
     private void Awake()
     {
@@ -48,11 +48,11 @@ public class RainManager : MonoBehaviour
     
     void SpawnRainDrop()
     {
-        if (limitReached)
+        if (_limitReached)
             return;
-        if (dropCount >= maxDropCount)
+        if (dropCount >= MaxDropCount)
         {
-            limitReached = true;
+            _limitReached = true;
             return;
         }
         Instantiate(rainDropPrefab, GetRandomPosition(), Quaternion.identity);
