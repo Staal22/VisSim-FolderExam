@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class RollingBall : MonoBehaviour
 {
-    [SerializeField] private bool isRainDrop;
-    [SerializeField] private Mesh staticWaterForm;
+    public bool isRainDrop;
+    
+    [SerializeField] private GameObject waterBodyPrefab;
     
     private const float Mass = 1;
     private static readonly Vector3 Gravity = Physics.gravity * Mass;
@@ -18,10 +20,10 @@ public class RollingBall : MonoBehaviour
     private int _triangleID = -1;
     private int _nextTriangleID;
     private float _radius;
-    private bool _rolling;
-    private bool _rollingDown;
     private float _height;
     private float _initTime;
+    private bool _rolling;
+    private bool _rollingDown;
 
     private void Awake()
     {
@@ -151,13 +153,19 @@ public class RollingBall : MonoBehaviour
         transform.position = _rollingDown ? new Vector3(position.x, _height + _radius - 0.3f , position.z) : position;
         _oldVelocity = velocity;
         
-        if (Math.Abs(_oldVelocity.x) < VelocityThreshold && Math.Abs(_oldVelocity.z) < VelocityThreshold && isRainDrop && _rolling && Time.fixedTime - _initTime > 2f)
+        if (Math.Abs(_oldVelocity.x) < VelocityThreshold && Math.Abs(_oldVelocity.z) < VelocityThreshold && isRainDrop && _rolling && Time.fixedTime - _initTime > 10f)
         {
-            transform.rotation = Quaternion.identity;
-            gameObject.GetComponent<MeshFilter>().mesh = staticWaterForm;
             RainManager.Instance.dropCount--;
             RainManager.Instance.rainCount.text = RainManager.Instance.dropCount.ToString();
-            enabled = false; // Disable this script to stop computation
+            
+            BecomeWaterBody();
         }
     }
+
+    private void BecomeWaterBody()
+    {
+        Instantiate(waterBodyPrefab, transform.position - new Vector3(0,-0.5f,0), Quaternion.identity);
+        Destroy(gameObject);
+    }
+    
 }

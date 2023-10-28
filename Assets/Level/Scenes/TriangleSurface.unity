@@ -291,6 +291,9 @@ MonoBehaviour:
     type: 3}
   spawnIntervalRange: {x: 300, y: 250}
   rainCount: {fileID: 1071409275}
+  dropCount: 0
+  maxDropCount: 1000
+  limitReached: 0
 --- !u!4 &375051747
 Transform:
   m_ObjectHideFlags: 0
