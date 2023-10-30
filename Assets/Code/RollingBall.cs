@@ -14,7 +14,7 @@ public class RollingBall : MonoBehaviour
     private static readonly Vector3 Gravity = Physics.gravity * Mass;
     private const float VelocityThreshold = 0.1f;
     
-    private readonly List<Vector3> _controlPoints = new();
+    private List<Vector3> _controlPoints = new();
     private Action<List<Vector3>> _onBecomeWaterBody;
     private int _timeStep;
     private TriangleSurface _triangleSurface;
