@@ -24,7 +24,7 @@ public class SplineManager : MonoBehaviour
 
     public void CreateSpline(List<Vector3> controlPoints)
     {
-        var Spline = Instantiate(splinePrefab, Vector3.zero, Quaternion.identity);
-        Spline.GetComponent<Spline>().SetControlPoints(controlPoints);
+        var spline = Instantiate(splinePrefab, Vector3.zero, Quaternion.identity);
+        spline.GetComponent<Spline>().SetControlPoints(controlPoints);
     }
 }

@@ -19,7 +19,7 @@ public class Spline : MonoBehaviour
         
         if(_controlPoints.Count < 3) return; // At least 3 points are required for B-Spline
 
-        const float step = 0.01f;
+        const float step = 0.1f;
         int stepsPerSegment = (int)(1.0f / step) + 1; // Steps for each segment including the last point
         int segmentCount = _controlPoints.Count - 2; // Calculate amount of segments
         _lineRenderer.positionCount = segmentCount * stepsPerSegment; // Total position count
@@ -30,10 +30,6 @@ public class Spline : MonoBehaviour
             for (var t = 0.0f; t <= 1.0; t += step)
             {
                 Vector3 position = QuadraticBSpline(_controlPoints.GetRange(i, 3), t);
-                if(index > _lineRenderer.positionCount - 1){
-                    Debug.LogError("Index out of range: " + index);
-                    return;
-                }
                 _lineRenderer.SetPosition(index++, position);
             }
         }
