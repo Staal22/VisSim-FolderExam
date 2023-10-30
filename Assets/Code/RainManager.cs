@@ -15,7 +15,7 @@ public class RainManager : MonoBehaviour
     
     [SerializeField] private GameObject rainDropPrefab;
     [SerializeField] private Vector2 spawnIntervalRange = Vector2.one * 10;
-    private const int MaxDropCount = 300;
+    private const int MaxDropCount = 100;
     private bool _limitReached;
     
     private void Awake()

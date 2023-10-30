@@ -45,7 +45,7 @@ public class WaterBody : MonoBehaviour
         if (rollingBall != null && rollingBall.isRainDrop)
         {
             Expand();
-            Destroy(rollingBall.gameObject);
+            rollingBall.BecomeWaterBody(true);
             return;
 
         }
@@ -90,11 +90,6 @@ public class WaterBody : MonoBehaviour
             if (cornerTriangles[i].HeightAtPoint(corners[i]) < corners[i].y)
                 return false;
         }
-        
-        
-        
-        
-        
         return true;
     }
     

@@ -7,15 +7,15 @@ using UnityEngine.Serialization;
 
 public class RollingBall : MonoBehaviour
 {
-    public bool isRainDrop;
+    public bool isRainDrop;   
     
     [SerializeField] private GameObject waterBodyPrefab;
-    
     private const float Mass = 1;
     private static readonly Vector3 Gravity = Physics.gravity * Mass;
     private const float VelocityThreshold = 0.1f;
     
-    private List<Vector3> _controlPoints = new();
+    private readonly List<Vector3> _controlPoints = new();
+    private Action<List<Vector3>> _onBecomeWaterBody;
     private int _timeStep;
     private TriangleSurface _triangleSurface;
     private Vector3 _oldVelocity = Vector3.zero;
@@ -36,16 +36,13 @@ public class RollingBall : MonoBehaviour
     {
         _initTime = Time.fixedTime;
         _triangleSurface = TriangleSurface.Instance;
+        _onBecomeWaterBody += SplineManager.Instance.CreateSpline;
     }
 
     private void FixedUpdate()
     {
         _timeStep++;
-        if (_timeStep == 50)
-        {
-            _timeStep = 0;
-            _controlPoints.Add(transform.position);
-        }
+        
         var unitNormal = Vector3.zero;
         var triangles = _triangleSurface.Triangles;
         
@@ -53,12 +50,10 @@ public class RollingBall : MonoBehaviour
         if (_triangleID != -1)
         {
             unitNormal = triangles[_triangleID].Normal;
-            // Debug.Log("Triangle: " + _triangleID);
             Vector3 point = triangles[_triangleID].Vertices[0];
             var p = transform.position - point;
             var y = Vector3.Dot(p, unitNormal) * unitNormal;
             _rolling = y.magnitude < _radius;
-            // Debug.Log("Rolling: " + _rolling);
         }
         else
         {
@@ -88,12 +83,8 @@ public class RollingBall : MonoBehaviour
             acceleration = force / Mass;
         else
             acceleration = Gravity / Mass;
-        // Draw debug line for acceleration
-        // Debug.DrawRay(transform.position, acceleration, Color.red);
         
         var velocity = _oldVelocity + acceleration * Time.fixedDeltaTime;
-        // Draw debug line for velocity
-        // Debug.DrawRay(transform.position, velocity, Color.green);
 
         if (_rolling)
         {
@@ -133,9 +124,11 @@ public class RollingBall : MonoBehaviour
         {
             if (_triangleID != -1)
             {
-                // Calculate the center of the triangle
-                // Vector3 center = (triangles[_triangleID].Vertices[0] + triangles[_triangleID].Vertices[1] + triangles[_triangleID].Vertices[2]) / 3;
-                // Debug.DrawLine(center, center + unitNormal, Color.yellow);
+                if (_timeStep >= 5)
+                {
+                    _timeStep = 0;
+                    _controlPoints.Add(transform.position);
+                }
 
                 // Don't correct position when not pushing into surface.
                 if (_rollingDown)
@@ -156,9 +149,11 @@ public class RollingBall : MonoBehaviour
         }
     }
 
-    private void BecomeWaterBody()
+    public void BecomeWaterBody(bool merge = false)
     {
-        Instantiate(waterBodyPrefab, transform.position, Quaternion.identity);
+        if (!merge)
+            Instantiate(waterBodyPrefab, transform.position, Quaternion.identity);
+        _onBecomeWaterBody?.Invoke(_controlPoints);
         Destroy(gameObject);
     }
     

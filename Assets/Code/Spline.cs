@@ -6,43 +6,46 @@ using UnityEngine;
 public class Spline : MonoBehaviour
 {
     private List<Vector3> _controlPoints = new();
+    private LineRenderer _lineRenderer;
+
+    private void Awake()
+    {
+        _lineRenderer = GetComponent<LineRenderer>();
+    }
 
     public void SetControlPoints(List<Vector3> controlPoints)
     {
         _controlPoints = controlPoints;
-        // adjust y value of control points so the spline hovers above the ground
-        for (var i = 0; i < _controlPoints.Count; i++)
+        
+        if(_controlPoints.Count < 3) return; // At least 3 points are required for B-Spline
+
+        const float step = 0.01f;
+        int stepsPerSegment = (int)(1.0f / step) + 1; // Steps for each segment including the last point
+        int segmentCount = _controlPoints.Count - 2; // Calculate amount of segments
+        _lineRenderer.positionCount = segmentCount * stepsPerSegment; // Total position count
+    
+        int index = 0;
+        for (var i = 0; i < segmentCount; i++)
         {
-            _controlPoints[i] = new Vector3(_controlPoints[i].x, _controlPoints[i].y + 5f, _controlPoints[i].z);
+            for (var t = 0.0f; t <= 1.0; t += step)
+            {
+                Vector3 position = QuadraticBSpline(_controlPoints.GetRange(i, 3), t);
+                if(index > _lineRenderer.positionCount - 1){
+                    Debug.LogError("Index out of range: " + index);
+                    return;
+                }
+                _lineRenderer.SetPosition(index++, position);
+            }
         }
     }
     
-    public void OnDrawGizmos()
-    {
-        if (_controlPoints.Count < 2) return;
-
-        for (var i = 0; i < _controlPoints.Count - 1; i++)
-        {
-            // Redraw the Gizmos each frame so the control lines follow the controlPoints
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(_controlPoints[i], _controlPoints[i + 1]);
-        }
-
-        // Draw the actual curve
-        Gizmos.color = Color.red;
-        for (var t = 0.0f; t <= 1.0; t += 0.01f)
-        {
-            Gizmos.DrawSphere(QuadraticBSpline(_controlPoints, t), 0.1f);
-        }
-    }
-
     private Vector3 QuadraticBSpline(List<Vector3> controlPoints, float t)
     {
         // This B-Spline uses a quadratic uniform function for calculation
         var P0 = controlPoints[0];
         var P1 = controlPoints[1];
         var P2 = controlPoints[2];
-
+        
         var part1 = (1 - t) * (1 - t) * P0;
         var part2 = 2 * (1 - t) * t * P1;
         var part3 = t * t * P2;
