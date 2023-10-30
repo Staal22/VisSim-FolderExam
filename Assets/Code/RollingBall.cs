@@ -15,6 +15,8 @@ public class RollingBall : MonoBehaviour
     private static readonly Vector3 Gravity = Physics.gravity * Mass;
     private const float VelocityThreshold = 0.1f;
     
+    private List<Vector3> _controlPoints = new();
+    private int _timeStep;
     private TriangleSurface _triangleSurface;
     private Vector3 _oldVelocity = Vector3.zero;
     private int _triangleID = -1;
@@ -38,7 +40,12 @@ public class RollingBall : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _rollingDown = false;
+        _timeStep++;
+        if (_timeStep == 50)
+        {
+            _timeStep = 0;
+            _controlPoints.Add(transform.position);
+        }
         var unitNormal = Vector3.zero;
         var triangles = _triangleSurface.Triangles;
         
@@ -57,10 +64,19 @@ public class RollingBall : MonoBehaviour
         {
             if (transform.position.y < 300)
             {
-                Debug.LogWarning("Falt av planet, ødelegger ball");
-                BallButton.Instance.ballCount--;
-                if (BallButton.Instance.textElement.text == "Maks antall baller nådd")
-                    BallButton.Instance.textElement.text = "Plukk opp ball";
+                if (isRainDrop)
+                {
+                    Debug.LogWarning("Falt av terrenget, ødelegger regndråpe");
+                    RainManager.Instance.dropCount--;
+                    RainManager.Instance.rainCount.text = RainManager.Instance.dropCount.ToString();
+                }
+                else
+                {
+                    Debug.LogWarning("Falt av terrenget, ødelegger ball");
+                    BallButton.Instance.ballCount--;
+                    if (BallButton.Instance.textElement.text == "Maks antall baller nådd")
+                        BallButton.Instance.textElement.text = "Plukk opp ball";
+                }
                 Destroy(gameObject);
             }
         }
@@ -90,6 +106,10 @@ public class RollingBall : MonoBehaviour
             {
                 velocity = new Vector3(velocity.x, 0, velocity.z);
             }
+        }
+        else
+        {
+            _rollingDown = false;
         }
         
         var position = transform.position + velocity * Time.fixedDeltaTime;
@@ -132,7 +152,6 @@ public class RollingBall : MonoBehaviour
         {
             RainManager.Instance.dropCount--;
             RainManager.Instance.rainCount.text = RainManager.Instance.dropCount.ToString();
-            
             BecomeWaterBody();
         }
     }

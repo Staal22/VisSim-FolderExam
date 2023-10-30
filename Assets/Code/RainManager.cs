@@ -11,10 +11,11 @@ public class RainManager : MonoBehaviour
     
     public TextMeshProUGUI rainCount;
     public int dropCount;
+    public List<RollingBall> rainDrops = new();
     
     [SerializeField] private GameObject rainDropPrefab;
     [SerializeField] private Vector2 spawnIntervalRange = Vector2.one * 10;
-    private const int MaxDropCount = 1000;
+    private const int MaxDropCount = 300;
     private bool _limitReached;
     
     private void Awake()
@@ -55,7 +56,8 @@ public class RainManager : MonoBehaviour
             _limitReached = true;
             return;
         }
-        Instantiate(rainDropPrefab, GetRandomPosition(), Quaternion.identity);
+        var rainDrop = Instantiate(rainDropPrefab, GetRandomPosition(), Quaternion.identity);
+        rainDrops.Add(rainDrop.GetComponent<RollingBall>());
         // Destroy(rainDrop, 5f);
         dropCount++;
         rainCount.text = dropCount.ToString();
