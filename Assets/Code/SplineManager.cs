@@ -7,6 +7,8 @@ public class SplineManager : MonoBehaviour
 {
     public static SplineManager Instance;
     
+    [SerializeField] private GameObject splinePrefab;
+    
     private List<RollingBall> _rainDrops = new();
 
     private void Awake()
