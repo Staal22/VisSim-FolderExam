@@ -114,7 +114,7 @@ public class RollingBall : MonoBehaviour
         }
         // magic number because barycentric does not account for correct point of the ball when projecting ball onto the triangle
         if (_rollingDown && !_floating)
-            transform.position = new Vector3(position.x, _height + _radius - 0.1f , position.z);
+            transform.position = new Vector3(position.x, _height + _radius - 0.3f , position.z);
         else if (_floating)
             transform.position = new Vector3(position.x, _height + _radius - 0.1f, position.z);
         else

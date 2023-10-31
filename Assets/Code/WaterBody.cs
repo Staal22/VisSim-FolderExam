@@ -105,6 +105,13 @@ public class WaterBody : MonoBehaviour
             _isActive = true;
             rollingBall.onRollingBallDestruction.AddListener(() => RemoveRollingBall(rollingBall));
         }
+        var waterBody = other.gameObject.GetComponent<WaterBody>();
+        if (waterBody != null)
+        {
+            // merge water bodies
+            Expand();
+            Destroy(waterBody.gameObject);
+        }
     }
 
     private void OnTriggerExit(Collider other)
