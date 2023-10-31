@@ -1166,7 +1166,7 @@ GameObject:
   - component: {fileID: 1681268321}
   - component: {fileID: 1681268320}
   - component: {fileID: 1681268319}
-  - component: {fileID: 1681268318}
+  - component: {fileID: 1681268322}
   m_Layer: 5
   m_Name: RainButton
   m_TagString: Untagged
@@ -1194,23 +1194,6 @@ RectTransform:
   m_AnchoredPosition: {x: 100, y: 100}
   m_SizeDelta: {x: 200, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1681268318
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1681268316}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6402af6b99cacf478c408794d9b52b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ballPrefab: {fileID: 2089043474199185864, guid: 0c9f511635ab98b4fac8fc318a09b22b,
-    type: 3}
-  mainCamera: {fileID: 1597525899}
-  textElement: {fileID: 0}
-  ballCount: 0
 --- !u!114 &1681268319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1255,9 +1238,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1681268318}
-        m_TargetAssemblyTypeName: BallButton, Assembly-CSharp
-        m_MethodName: PickBall
+      - m_Target: {fileID: 1681268322}
+        m_TargetAssemblyTypeName: RainButton, Assembly-CSharp
+        m_MethodName: ToggleRain
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1305,6 +1288,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1681268316}
   m_CullTransparentMesh: 1
+--- !u!114 &1681268322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1681268316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da207f051f33f4e479352a5654cd750a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1569965769840012617
 GameObject:
   m_ObjectHideFlags: 0

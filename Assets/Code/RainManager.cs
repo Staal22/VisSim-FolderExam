@@ -17,15 +17,22 @@ public class RainManager : MonoBehaviour
     [SerializeField] private Vector2 spawnIntervalRange = Vector2.one * 10;
     private const int MaxDropCount = 200;
     private bool _limitReached;
+    private bool _rainActive;
     
     private void Awake()
     {
         Instance = this;
     }
 
-    private void Start()
+    private void FixedUpdate()
     {
-        InvokeRepeating(nameof(SpawnRainDrop), 0, 0.05f);
+        if (!_rainActive)
+            return;
+        // spawn a raindrop every 0.1 seconds using fixed time
+        if (Time.fixedTime % 0.1f < Time.fixedDeltaTime)
+        {
+            SpawnRainDrop();
+        }
     }
 
     private void OnDrawGizmosSelected()
@@ -34,6 +41,13 @@ public class RainManager : MonoBehaviour
         Gizmos.DrawWireCube(transform.position, size);
     }
 
+    public void SetRaining(bool raining)
+    {
+        _rainActive = raining;
+        if (raining)
+            _limitReached = false;
+    }
+    
     Vector3 GetRandomPosition()
     {
         float x = Random.Range(-spawnIntervalRange.x, spawnIntervalRange.x);
@@ -50,7 +64,11 @@ public class RainManager : MonoBehaviour
     void SpawnRainDrop()
     {
         if (_limitReached)
+        {
+            SetRaining(false);
+            RainButton.Instance.LimitReached();
             return;
+        }
         if (dropCount >= MaxDropCount)
         {
             _limitReached = true;
@@ -58,7 +76,6 @@ public class RainManager : MonoBehaviour
         }
         var rainDrop = Instantiate(rainDropPrefab, GetRandomPosition(), Quaternion.identity);
         rainDrops.Add(rainDrop.GetComponent<RollingBall>());
-        // Destroy(rainDrop, 5f);
         dropCount++;
         rainCount.text = dropCount.ToString();
     }

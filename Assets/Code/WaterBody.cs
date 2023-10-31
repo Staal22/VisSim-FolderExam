@@ -25,11 +25,14 @@ public class WaterBody : MonoBehaviour
 
     private void Awake()
     {
-        _initTime = Time.fixedTime;
-        
-        _triangleSurface = TriangleSurface.Instance;
         _meshFilter = GetComponent<MeshFilter>();
         _boxCollider = GetComponent<BoxCollider>();
+    }
+
+    private void Start()
+    {
+        _initTime = Time.fixedTime;
+        _triangleSurface = TriangleSurface.Instance;
         
         transform.position = new Vector3(transform.position.x, transform.position.y - 0.2f, transform.position.z);
         // find corner vertices

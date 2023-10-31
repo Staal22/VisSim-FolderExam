@@ -62,19 +62,6 @@ public class RollingBall : MonoBehaviour
         {
             if (transform.position.y < 300)
             {
-                if (isRainDrop)
-                {
-                    Debug.LogWarning("Falt av terrenget, ødelegger regndråpe");
-                    RainManager.Instance.dropCount--;
-                    RainManager.Instance.rainCount.text = RainManager.Instance.dropCount.ToString();
-                }
-                else
-                {
-                    Debug.LogWarning("Falt av terrenget, ødelegger ball");
-                    BallButton.Instance.ballCount--;
-                    if (BallButton.Instance.textElement.text == "Maks antall baller nådd")
-                        BallButton.Instance.textElement.text = "Plukk opp ball";
-                }
                 Destroy(gameObject);
             }
         }
@@ -107,21 +94,6 @@ public class RollingBall : MonoBehaviour
         }
         
         var position = transform.position + velocity * Time.fixedDeltaTime;
-        
-        // _nextTriangleID = _triangleSurface.FindTriangle(position);
-        // if (_nextTriangleID != _triangleID && _nextTriangleID != -1 && _triangleID != -1)
-        // {
-        //     var nextTriangleNormal = triangles[_nextTriangleID].Normal;
-        //     var triangleNormal = triangles[_triangleID].Normal;
-        //     var reflectionNormal = (nextTriangleNormal + triangleNormal).normalized;
-        //
-        //     var crash = Vector3.Cross(nextTriangleNormal, triangleNormal).y > 0;
-        //     
-        //     if (crash)
-        //         velocity -= 2 * Vector3.Dot(velocity, reflectionNormal) * reflectionNormal;
-        //     else
-        //         _rolling = false;
-        // }
 
         if (_rolling)
         {
@@ -142,9 +114,9 @@ public class RollingBall : MonoBehaviour
         }
         // magic number because barycentric does not account for correct point of the ball when projecting ball onto the triangle
         if (_rollingDown && !_floating)
-            transform.position = new Vector3(position.x, _height + _radius - 0.2f , position.z);
+            transform.position = new Vector3(position.x, _height + _radius - 0.1f , position.z);
         else if (_floating)
-            transform.position = new Vector3(position.x, _height + _radius - 0.2f, position.z);
+            transform.position = new Vector3(position.x, _height + _radius - 0.1f, position.z);
         else
         {
             transform.position = new Vector3(position.x, position.y, position.z);
@@ -153,8 +125,6 @@ public class RollingBall : MonoBehaviour
         
         if (Math.Abs(_oldVelocity.x) < VelocityThreshold && Math.Abs(_oldVelocity.z) < VelocityThreshold && isRainDrop && _rolling && Time.fixedTime - _initTime > 10f)
         {
-            RainManager.Instance.dropCount--;
-            RainManager.Instance.rainCount.text = RainManager.Instance.dropCount.ToString();
             BecomeWaterBody();
         }
     }
@@ -182,6 +152,19 @@ public class RollingBall : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (isRainDrop)
+        {
+            Debug.LogWarning("Ødelegger regndråpe");
+            RainManager.Instance.dropCount--;
+            RainManager.Instance.rainCount.text = RainManager.Instance.dropCount.ToString();
+        }
+        else
+        {
+            Debug.LogWarning("Ødelegger ball");
+            BallButton.Instance.ballCount--;
+            if (BallButton.Instance.textElement.text == "Maks antall baller nådd")
+                BallButton.Instance.textElement.text = "Plukk opp ball";
+        }
         onRollingBallDestruction?.Invoke();
     }
 }
