@@ -14,6 +14,7 @@ public class TriangleSurface : MonoBehaviour
     private const int GridHeight = 50;
     
     private MeshFilter _meshFilter;
+    private MeshCollider _meshCollider;
     
     private Vector3[] _points;
     private Vector3[] _vertices;
@@ -23,6 +24,7 @@ public class TriangleSurface : MonoBehaviour
     {
         Instance = this;
         _meshFilter = GetComponent<MeshFilter>();
+        _meshCollider = GetComponent<MeshCollider>();
     }
 
     private void Start()
@@ -225,6 +227,10 @@ public class TriangleSurface : MonoBehaviour
             newMesh.RecalculateNormals();
             newMesh.RecalculateBounds();
             _meshFilter.mesh = newMesh;
+        }
+        if (_meshCollider != null)
+        {
+            _meshCollider.sharedMesh = _meshFilter.mesh;
         }
     }
     
