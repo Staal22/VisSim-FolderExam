@@ -15,36 +15,46 @@ public class Spline : MonoBehaviour
 
     public void SetControlPoints(List<Vector3> controlPoints)
     {
-        _controlPoints = controlPoints;
-        
-        if(_controlPoints.Count < 3) return; // At least 3 points are required for B-Spline
+        if (controlPoints.Count < 3) return; // At least 3 points are required for B-Spline
+  
+        // Calculate the knot vector
+        List<float> knotVector = new List<float>();
+        for (int i = 0; i < controlPoints.Count + 3; i++)
+        {
+            knotVector.Add(i);
+        }
 
         const float step = 0.01f;
-        int stepsPerSegment = (int)(1.0f / step) + 1; // Steps for each segment including the last point
-        int segmentCount = _controlPoints.Count - 2; // Calculate amount of segments
-        _lineRenderer.positionCount = segmentCount * stepsPerSegment; // Total position count
-    
-        int index = 0;
-        for (var i = 0; i < segmentCount; i++)
+        List<Vector3> positions = new List<Vector3>();
+
+        // Calculate the positions
+        for (float t = 2; t <= controlPoints.Count; t += step)  // the t starts from 2 and ends at controlPoints.Count.
         {
-            for (var t = 0.0f; t <= 1.0; t += step)
+            Vector3 position = Vector3.zero;
+            for (int i = 0; i < controlPoints.Count; i++)
             {
-                Vector3 position = QuadraticBSpline(_controlPoints[i], _controlPoints[i+1], _controlPoints[i+2], t);
-                _lineRenderer.SetPosition(index++, position);
+                float basis = BSplineBasis(i, 2, t, knotVector);
+                position += basis * controlPoints[i];
             }
+            positions.Add(position);
         }
+
+        _lineRenderer.positionCount = positions.Count;
+        _lineRenderer.SetPositions(positions.ToArray());
     }
     
-    private Vector3 QuadraticBSpline(Vector3 p0, Vector3 p1, Vector3 p2, float t)
+    private float BSplineBasis(int i, int degree, float t, List<float> knots)
     {
-        // This B-Spline uses a quadratic uniform function for calculation
-        var tSq = t * t;
-        var oneMinusT = 1 - t;
-        
-        var part1 = oneMinusT * oneMinusT * p0;
-        var part2 = 2 * oneMinusT * t * p1;
-        var part3 = tSq * p2;
-
-        return part1 + part2 + part3;
+        if (degree == 0)
+        {
+            if (knots[i] <= t && t < knots[i+1]) return 1.0f;
+            else return 0f;
+        }
+        else
+        {
+            float a = ((t - knots[i]) / (knots[i + degree] - knots[i])) * BSplineBasis(i, degree - 1, t, knots);
+            float b = ((knots[i + degree + 1] - t) / (knots[i + degree + 1] - knots[i + 1])) * BSplineBasis(i + 1, degree - 1, t, knots);
+            return a + b;
+        }
     }
 }
