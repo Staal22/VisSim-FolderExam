@@ -2,7 +2,8 @@ using UnityEngine;
 
 /// <summary>
 ///     I did not write this. I found it here: https://gist.github.com/ashleydavis/f025c03a9221bc840a2b
-///     Honestly, it's very inefficient and the code makes me cry, but it works fine
+///     Honestly, it's very inefficient and the code makes me cry, but it works fine.
+///     I added some slight performance improvements and refactored the code to be improve readability.
 /// </summary>
 public class FreeCam : MonoBehaviour
 {
@@ -39,36 +40,38 @@ public class FreeCam : MonoBehaviour
     private void Update()
     {
         var fastMode = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-        var movementSpeed = fastMode ? fastMovementSpeed : this.movementSpeed;
+        var speed = fastMode ? fastMovementSpeed : movementSpeed;
+        var transform1 = transform;
+        
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) transform1.position += -transform.right * (speed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) transform.position = transform.position + -transform.right * movementSpeed * Time.deltaTime;
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) transform1.position += transform.right * (speed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) transform.position = transform.position + transform.right * movementSpeed * Time.deltaTime;
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) transform1.position += transform.forward * (speed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) transform.position = transform.position + transform.forward * movementSpeed * Time.deltaTime;
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) transform1.position += -transform.forward * (speed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) transform.position = transform.position + -transform.forward * movementSpeed * Time.deltaTime;
+        if (Input.GetKey(KeyCode.Q)) transform1.position += transform.up * (speed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.Q)) transform.position = transform.position + transform.up * (movementSpeed * Time.deltaTime);
+        if (Input.GetKey(KeyCode.E)) transform1.position += -transform.up * (speed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.E)) transform.position = transform.position + -transform.up * (movementSpeed * Time.deltaTime);
+        if (Input.GetKey(KeyCode.R) || Input.GetKey(KeyCode.PageUp)) transform.position += Vector3.up * (speed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.R) || Input.GetKey(KeyCode.PageUp)) transform.position = transform.position + Vector3.up * movementSpeed * Time.deltaTime;
-
-        if (Input.GetKey(KeyCode.F) || Input.GetKey(KeyCode.PageDown)) transform.position = transform.position + -Vector3.up * movementSpeed * Time.deltaTime;
+        if (Input.GetKey(KeyCode.F) || Input.GetKey(KeyCode.PageDown)) transform.position += -Vector3.up * (speed * Time.deltaTime);
 
         if (looking)
         {
-            var newRotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * freeLookSensitivity;
-            var newRotationY = transform.localEulerAngles.x - Input.GetAxis("Mouse Y") * freeLookSensitivity;
+            var rotation1 = transform1.localEulerAngles;
+            var newRotationX = rotation1.y + Input.GetAxis("Mouse X") * freeLookSensitivity;
+            var newRotationY = rotation1.x - Input.GetAxis("Mouse Y") * freeLookSensitivity;
             transform.localEulerAngles = new Vector3(newRotationY, newRotationX, 0f);
         }
 
         var axis = Input.GetAxis("Mouse ScrollWheel");
         if (axis != 0)
         {
-            var zoomSensitivity = fastMode ? fastZoomSensitivity : this.zoomSensitivity;
-            transform.position = transform.position + transform.forward * (axis * zoomSensitivity);
+            var sensitivity = fastMode ? fastZoomSensitivity : zoomSensitivity;
+            transform1.position += transform.forward * (axis * sensitivity);
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse1))
