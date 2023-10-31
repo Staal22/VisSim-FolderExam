@@ -35,7 +35,7 @@ public class FreeCam : MonoBehaviour
     /// <summary>
     ///     Set to true when free looking (on right mouse button).
     /// </summary>
-    private bool looking;
+    private bool _looking;
 
     private void Update()
     {
@@ -59,7 +59,7 @@ public class FreeCam : MonoBehaviour
 
         if (Input.GetKey(KeyCode.F) || Input.GetKey(KeyCode.PageDown)) transform.position += -Vector3.up * (speed * Time.deltaTime);
 
-        if (looking)
+        if (_looking)
         {
             var rotation1 = transform1.localEulerAngles;
             var newRotationX = rotation1.y + Input.GetAxis("Mouse X") * freeLookSensitivity;
@@ -87,9 +87,9 @@ public class FreeCam : MonoBehaviour
     /// <summary>
     ///     Enable free looking.
     /// </summary>
-    public void StartLooking()
+    private void StartLooking()
     {
-        looking = true;
+        _looking = true;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -97,9 +97,9 @@ public class FreeCam : MonoBehaviour
     /// <summary>
     ///     Disable free looking.
     /// </summary>
-    public void StopLooking()
+    private void StopLooking()
     {
-        looking = false;
+        _looking = false;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
     }
