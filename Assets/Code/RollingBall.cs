@@ -124,7 +124,7 @@ public class RollingBall : MonoBehaviour
         {
             if (_triangleID != -1)
             {
-                if (_timeStep >= 25)
+                if (_timeStep >= 50)
                 {
                     _timeStep = 0;
                     _controlPoints.Add(transform.position);

@@ -15,6 +15,11 @@ public class Spline : MonoBehaviour
 
     public void SetControlPoints(List<Vector3> controlPoints)
     {
+        foreach (var point in controlPoints)
+        {
+            Debug.DrawLine(point, point + Vector3.up * 1, Color.red, 100);
+        }
+        
         if (controlPoints.Count < 3) return; // At least 3 points are required for B-Spline
   
         // Calculate the knot vector
