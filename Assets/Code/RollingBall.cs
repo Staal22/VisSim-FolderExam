@@ -3,18 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 public class RollingBall : MonoBehaviour
 {
     public bool isRainDrop;   
-    
+    public UnityEvent onRollingBallDestruction;
+
     [SerializeField] private GameObject waterBodyPrefab;
     private const float Mass = 1;
     private static readonly Vector3 Gravity = Physics.gravity * Mass;
     private const float VelocityThreshold = 0.1f;
     
-    private List<Vector3> _controlPoints = new();
+    private readonly List<Vector3> _controlPoints = new();
     private Action<List<Vector3>> _onBecomeWaterBody;
     private int _timeStep;
     private TriangleSurface _triangleSurface;
@@ -26,6 +28,7 @@ public class RollingBall : MonoBehaviour
     private float _initTime;
     private bool _rolling;
     private bool _rollingDown;
+    private bool _floating;
 
     private void Awake()
     {
@@ -130,15 +133,22 @@ public class RollingBall : MonoBehaviour
                     _controlPoints.Add(transform.position);
                 }
 
-                // Don't correct position when not pushing into surface.
-                if (_rollingDown)
+                // Only correct position when rolling into the surface
+                if (_rollingDown && !_floating)
                 {
                     _height = triangles[_triangleID].HeightAtPoint(position);
                 }
             }
         }
         // magic number because barycentric does not account for correct point of the ball when projecting ball onto the triangle
-        transform.position = _rollingDown ? new Vector3(position.x, _height + _radius - 0.3f , position.z) : position;
+        if (_rollingDown && !_floating)
+            transform.position = new Vector3(position.x, _height + _radius - 0.2f , position.z);
+        else if (_floating)
+            transform.position = new Vector3(position.x, _height + _radius - 0.2f, position.z);
+        else
+        {
+            transform.position = new Vector3(position.x, position.y, position.z);
+        }
         _oldVelocity = velocity;
         
         if (Math.Abs(_oldVelocity.x) < VelocityThreshold && Math.Abs(_oldVelocity.z) < VelocityThreshold && isRainDrop && _rolling && Time.fixedTime - _initTime > 10f)
@@ -149,12 +159,29 @@ public class RollingBall : MonoBehaviour
         }
     }
 
+    public void DoFloat(float worldHeight)
+    {
+        _floating = true;
+        _height = worldHeight;
+    }
+
+    public void StopFloating()
+    {
+        _floating = false;
+    }
+    
     public void BecomeWaterBody(bool merge = false)
     {
         if (!merge)
+        {
             Instantiate(waterBodyPrefab, transform.position, Quaternion.identity);
+        }
         _onBecomeWaterBody?.Invoke(_controlPoints);
         Destroy(gameObject);
     }
-    
+
+    private void OnDestroy()
+    {
+        onRollingBallDestruction?.Invoke();
+    }
 }

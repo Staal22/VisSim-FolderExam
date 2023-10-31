@@ -49,9 +49,9 @@ public class FreeCam : MonoBehaviour
 
         if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) transform.position = transform.position + -transform.forward * movementSpeed * Time.deltaTime;
 
-        if (Input.GetKey(KeyCode.Q)) transform.position = transform.position + transform.up * movementSpeed * Time.deltaTime;
+        if (Input.GetKey(KeyCode.Q)) transform.position = transform.position + transform.up * (movementSpeed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.E)) transform.position = transform.position + -transform.up * movementSpeed * Time.deltaTime;
+        if (Input.GetKey(KeyCode.E)) transform.position = transform.position + -transform.up * (movementSpeed * Time.deltaTime);
 
         if (Input.GetKey(KeyCode.R) || Input.GetKey(KeyCode.PageUp)) transform.position = transform.position + Vector3.up * movementSpeed * Time.deltaTime;
 
@@ -68,7 +68,7 @@ public class FreeCam : MonoBehaviour
         if (axis != 0)
         {
             var zoomSensitivity = fastMode ? fastZoomSensitivity : this.zoomSensitivity;
-            transform.position = transform.position + transform.forward * axis * zoomSensitivity;
+            transform.position = transform.position + transform.forward * (axis * zoomSensitivity);
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse1))
