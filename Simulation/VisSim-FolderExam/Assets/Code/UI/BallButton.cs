@@ -14,6 +14,8 @@ public class BallButton : MonoBehaviour
     
     public TextMeshProUGUI textElement;
     public int ballCount;
+
+    [SerializeField] private Texture2D cursorTexture;
     
     private bool _holdingBall;
 
@@ -31,7 +33,7 @@ public class BallButton : MonoBehaviour
             return;
         }
         // change cursor to ball
-        Cursor.SetCursor(ballPrefab.GetComponentInChildren<SpriteRenderer>().sprite.texture, Vector2.zero, CursorMode.Auto);
+        Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
         textElement.text = "Trykk på overflaten for å plassere ballen";
         _holdingBall = true;
     }

@@ -1867,6 +1867,7 @@ MonoBehaviour:
   mainCamera: {fileID: 1597525899}
   textElement: {fileID: 0}
   ballCount: 0
+  cursorTexture: {fileID: 2800000, guid: bc2f82720755c8545a4089d7b86d23d4, type: 3}
 --- !u!114 &9084638827101721823
 MonoBehaviour:
   m_ObjectHideFlags: 0
