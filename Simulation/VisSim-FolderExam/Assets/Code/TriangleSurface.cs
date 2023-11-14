@@ -64,46 +64,6 @@ public class TriangleSurface : MonoBehaviour
         return output;
     }
     
-    public float HeightAtCoordinate(Vector2 position)
-    {
-        // Calculate indices of the grid square based on position.
-        int iIndex = Mathf.FloorToInt((position.x - _topLeft.x) / _gridStepX);
-        int jIndex = Mathf.FloorToInt((_topLeft.z - position.y) / _gridStepZ);
-
-        // Check if the point is above or below the diagonal within the grid square.
-        float deltaX = (position.x - _topLeft.x) % _gridStepX;
-        float deltaY = (_topLeft.z - position.y) % _gridStepZ;
-
-        // Compute index of the first triangle in the square.
-        int squareIndex = jIndex * GridWidth + iIndex;
-        int firstTriangleIndex = 2 * squareIndex;
-
-        int triangleIndex;
-        if (deltaX / _gridStepX > deltaY / _gridStepZ)
-        {
-            // The point is in the second triangle
-            triangleIndex = firstTriangleIndex + 1;
-        }
-        else
-        {
-            // The point is in the first triangle
-            triangleIndex = firstTriangleIndex;
-        }
-
-        if(triangleIndex < 0 || triangleIndex >= Triangles.Count) return 0;
-
-        Triangle triangle = Triangles[triangleIndex];
-        var barycentricCoordinates = triangle.BaryCentricCoordinates(position);
-
-        if (Utilities.IsInsideTriangle(barycentricCoordinates))
-        {
-            return triangle.HeightAtPoint(position);
-        }
-        
-        // If the point isn't in the necessary triangle, return a default value.
-        return 0;
-    }
-    
     public int FindTriangle(Vector2 point, int initialTriangleId)
     {
         if (initialTriangleId == -1)

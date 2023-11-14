@@ -12,6 +12,7 @@ public class Spline : MonoBehaviour
     private void Awake()
     {
         _lineRenderer = GetComponent<LineRenderer>();
+        _lineRenderer.numCornerVertices = 3;
     }
 
     private void OnEnable()
@@ -56,21 +57,19 @@ public class Spline : MonoBehaviour
         List<Vector3> positions = new List<Vector3>();
 
         // Calculate the positions
-        for (float t = 2; t <= controlPoints.Count; t += step)  // the t starts from 2 and ends at controlPoints.Count.
+        for (float t = 2; t <= controlPoints.Count; t += step)  // the t starts from 2 and ends at controlPoints.Count
         {
             var position = Vector3.zero;
             for (int i = 0; i < controlPoints.Count; i++)
             {
                 float basis = BSplineBasis(i, 2, t, knotVector);
                 position += basis * new Vector3(controlPoints[i].Value.x, 0, controlPoints[i].Value.y);
+                // get the adjusted y-value for each point in the line renderer according to terrain
+                position += basis * new Vector3(0,
+                    _triangleSurface.Triangles[controlPoints[i].Key].HeightAtPoint(controlPoints[i].Value) + 0.1f,
+                    0);
             }
-            // Here the y-value will be zero
-            // TODO - get the adjusted y-value for each point in the line renderer according to terrain
-            // position = new Vector3(position.x,
-            //     _triangleSurface.HeightAtCoordinate(new Vector2(position.x, position.z)),
-            //     position.z);
-            
-            // float height = _triangleSurface.HeightAtCoordinate(new Vector2(position.x, position.z));
+
             
             positions.Add(position);
         }
