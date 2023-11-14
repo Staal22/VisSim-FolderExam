@@ -124,7 +124,7 @@ public class TriangleSurface : MonoBehaviour
     
     private void SetUpVertices()
     {
-        var vertices = GridHeight * GridWidth;
+        const int vertices = GridHeight * GridWidth;
         var step = _points.Length / vertices;
         _vertices = new Vector3[vertices];
 
@@ -170,7 +170,7 @@ public class TriangleSurface : MonoBehaviour
         return grid;
     }
     
-    private List<Triangle> GenerateTriangles()
+    private IEnumerable<Triangle> GenerateTriangles()
     {
         Triangles = new List<Triangle>();
         int triangleId = 0;

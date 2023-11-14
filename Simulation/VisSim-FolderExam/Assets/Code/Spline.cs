@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class Spline : MonoBehaviour
 {
-    private List<Vector3> _controlPoints = new();
     private LineRenderer _lineRenderer;
     private TriangleSurface _triangleSurface;
 
@@ -69,7 +68,6 @@ public class Spline : MonoBehaviour
                     _triangleSurface.Triangles[controlPoints[i].Key].HeightAtPoint(controlPoints[i].Value) + 0.1f,
                     0);
             }
-
             
             positions.Add(position);
         }
