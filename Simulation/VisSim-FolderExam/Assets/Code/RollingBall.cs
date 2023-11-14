@@ -102,7 +102,7 @@ public class RollingBall : MonoBehaviour
                 if (_timeStep >= 50)
                 {
                     _timeStep = 0;
-                    _controlPoints.Add(transform.position);
+                    _controlPoints.Add(new Vector3(transform.position.x, /*0.0f*/transform.position.y , transform.position.z));
                 }
 
                 // Only correct position when rolling into the surface

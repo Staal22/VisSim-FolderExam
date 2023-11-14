@@ -41,6 +41,8 @@ public class Spline : MonoBehaviour
                 float basis = BSplineBasis(i, 2, t, knotVector);
                 position += basis * controlPoints[i];
             }
+            // calculate y value with barycentric coordinates
+            // position = new Vector3(position.x, , position.z);
             positions.Add(position);
         }
 
