@@ -16,8 +16,8 @@ public class RollingBall : MonoBehaviour
     private static readonly Vector3 Gravity = Physics.gravity * Mass;
     private const float VelocityThreshold = 0.1f;
     
-    private readonly List<Vector3> _controlPoints = new();
-    private Action<List<Vector3>> _onBecomeWaterBody;
+    private readonly List<KeyValuePair<int, Vector2>> _controlPoints = new();
+    private Action<List<KeyValuePair<int, Vector2>>> _onBecomeWaterBody;
     private int _timeStep;
     private TriangleSurface _triangleSurface;
     private Vector3 _oldVelocity = Vector3.zero;
@@ -29,6 +29,7 @@ public class RollingBall : MonoBehaviour
     private bool _rolling;
     private bool _rollingDown;
     private bool _floating;
+    private Vector2 _xzPosition;
 
     private void Awake()
     {
@@ -45,11 +46,12 @@ public class RollingBall : MonoBehaviour
     private void FixedUpdate()
     {
         _timeStep++;
+        _xzPosition = new Vector2(transform.position.x, transform.position.z);
         
         var unitNormal = Vector3.zero;
         var triangles = _triangleSurface.Triangles;
         
-        _triangleID = _triangleSurface.FindTriangle(transform.position, _triangleID);
+        _triangleID = _triangleSurface.FindTriangle(_xzPosition, _triangleID);
         if (_triangleID != -1)
         {
             unitNormal = triangles[_triangleID].Normal;
@@ -102,13 +104,13 @@ public class RollingBall : MonoBehaviour
                 if (_timeStep >= 50)
                 {
                     _timeStep = 0;
-                    _controlPoints.Add(new Vector3(transform.position.x, /*0.0f*/transform.position.y , transform.position.z));
+                    _controlPoints.Add(new KeyValuePair<int, Vector2>(_triangleID,  new Vector2(transform.position.x, transform.position.z)));
                 }
 
                 // Only correct position when rolling into the surface
                 if (_rollingDown && !_floating)
                 {
-                    _height = triangles[_triangleID].HeightAtPoint(position);
+                    _height = triangles[_triangleID].HeightAtPoint(_xzPosition);
                 }
             }
         }

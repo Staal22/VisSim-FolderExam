@@ -35,36 +35,25 @@ public class Triangle
         }
     }
 
-    public float HeightAtPoint(Vector3 point)
+    public Vector3 BaryCentricCoordinates(Vector2 point)
     {
-        var height = 0f;
-        // Find plane height from barycentric coordinates.
-        var barycentricCoordinates = Utilities.Barycentric(
-            Vertices[0],
-            Vertices[1],
-            Vertices[2],
+        return Utilities.Barycentric(
+            new Vector2(Vertices[0].x, Vertices[0].z),
+            new Vector2(Vertices[1].x, Vertices[1].z),
+            new Vector2(Vertices[2].x, Vertices[2].z),
             point
         );
+    }
     
-        height = barycentricCoordinates.x * Vertices[0].y +
-                 barycentricCoordinates.y * Vertices[1].y +
-                 barycentricCoordinates.z * Vertices[2].y;
+    public float HeightAtPoint(Vector2 point)
+    {
+        // Find plane height from barycentric coordinates.
+        var barycentricCoordinates = BaryCentricCoordinates(point);
+    
+        var height = barycentricCoordinates.x * Vertices[0].y +
+                     barycentricCoordinates.y * Vertices[1].y +
+                     barycentricCoordinates.z * Vertices[2].y;
         
         return height;
     }
-    
-    // public float HighestPoint
-    // {
-    //     get
-    //     {
-    //         var highestPoint = Vertices[0].y;
-    //         foreach (var vertex in Vertices)
-    //         {
-    //             if (vertex.y > highestPoint)
-    //                 highestPoint = vertex.y;
-    //         }
-    //         return highestPoint;
-    //     }
-    // }
-    
 }

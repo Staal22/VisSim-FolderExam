@@ -12,6 +12,9 @@ public class TriangleSurface : MonoBehaviour
     // GridWith * GridHeight must not exceed 65535, otherwise the mesh will not be generated
     private const int GridWidth = 50;
     private const int GridHeight = 50;
+    private float _gridStepX = 0.1f;
+    private float _gridStepZ = 0.1f;
+    private Vector3 _topLeft = Vector3.zero;
     
     private MeshFilter _meshFilter;
     private MeshCollider _meshCollider;
@@ -22,7 +25,10 @@ public class TriangleSurface : MonoBehaviour
     
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+        }
         _meshFilter = GetComponent<MeshFilter>();
         _meshCollider = GetComponent<MeshCollider>();
     }
@@ -58,19 +64,54 @@ public class TriangleSurface : MonoBehaviour
         return output;
     }
     
-    public int FindTriangle(Vector3 point, int initialTriangleId)
+    public float HeightAtCoordinate(Vector2 position)
+    {
+        // Calculate indices of the grid square based on position.
+        int iIndex = Mathf.FloorToInt((position.x - _topLeft.x) / _gridStepX);
+        int jIndex = Mathf.FloorToInt((_topLeft.z - position.y) / _gridStepZ);
+
+        // Check if the point is above or below the diagonal within the grid square.
+        float deltaX = (position.x - _topLeft.x) % _gridStepX;
+        float deltaY = (_topLeft.z - position.y) % _gridStepZ;
+
+        // Compute index of the first triangle in the square.
+        int squareIndex = jIndex * GridWidth + iIndex;
+        int firstTriangleIndex = 2 * squareIndex;
+
+        int triangleIndex;
+        if (deltaX / _gridStepX > deltaY / _gridStepZ)
+        {
+            // The point is in the second triangle
+            triangleIndex = firstTriangleIndex + 1;
+        }
+        else
+        {
+            // The point is in the first triangle
+            triangleIndex = firstTriangleIndex;
+        }
+
+        if(triangleIndex < 0 || triangleIndex >= Triangles.Count) return 0;
+
+        Triangle triangle = Triangles[triangleIndex];
+        var barycentricCoordinates = triangle.BaryCentricCoordinates(position);
+
+        if (Utilities.IsInsideTriangle(barycentricCoordinates))
+        {
+            return triangle.HeightAtPoint(position);
+        }
+        
+        // If the point isn't in the necessary triangle, return a default value.
+        return 0;
+    }
+    
+    public int FindTriangle(Vector2 point, int initialTriangleId)
     {
         if (initialTriangleId == -1)
         {
             // The initial triangle is not known/valid, perform the full search
             foreach (var triangle in Triangles)
             {
-                Vector3 barycentricCoordinates = Utilities.Barycentric(
-                    triangle.Vertices[0],
-                    triangle.Vertices[1],
-                    triangle.Vertices[2],
-                    point
-                );
+                Vector3 barycentricCoordinates = triangle.BaryCentricCoordinates(point);
                 if (Utilities.IsInsideTriangle(barycentricCoordinates))
                 {
                     return triangle.ID;
@@ -79,31 +120,25 @@ public class TriangleSurface : MonoBehaviour
 
             return -1; // point is not within any triangle
         }
-        else
+
+        // Initiate search from the initialTriangleId and check its neighbours
+        Triangle initialTriangle = Triangles[initialTriangleId];
+        List<Triangle> neighboringTriangles = initialTriangle.Neighbours
+            .Where(neighbourId => neighbourId != -1)
+            .Select(neighbourId => Triangles[neighbourId])
+            .ToList();            neighboringTriangles.Add(initialTriangle); // Also add initial triangle in the list to check for it as well.
+
+        foreach (var triangle in neighboringTriangles)
         {
-            // Initiate search from the initialTriangleId and check its neighbours
-            Triangle initialTriangle = Triangles[initialTriangleId];
-            List<Triangle> neighboringTriangles = initialTriangle.Neighbours
-                .Where(neighbourId => neighbourId != -1)
-                .Select(neighbourId => Triangles[neighbourId])
-                .ToList();            neighboringTriangles.Add(initialTriangle); // Also add initial triangle in the list to check for it as well.
-
-            foreach (var triangle in neighboringTriangles)
+            Vector3 barycentricCoordinates = triangle.BaryCentricCoordinates(point);
+            if (Utilities.IsInsideTriangle(barycentricCoordinates))
             {
-                Vector3 barycentricCoordinates = Utilities.Barycentric(
-                    triangle.Vertices[0],
-                    triangle.Vertices[1],
-                    triangle.Vertices[2],
-                    point
-                );
-                if (Utilities.IsInsideTriangle(barycentricCoordinates))
-                {
-                    return triangle.ID;
-                }
+                return triangle.ID;
             }
-
-            return -1; // point is not within any triangle
         }
+
+        return -1; // point is not within any triangle
+
     }
     
     private void CreateMesh()
@@ -158,15 +193,16 @@ public class TriangleSurface : MonoBehaviour
 
     private List<Vector3> GenerateGrid(float xMin, float xMax, float zMin, float zMax, Vector3 topLeft)
     {
+        _topLeft = topLeft;
         var grid = new List<Vector3>();
-        var gridStepX = (xMax - xMin) / GridWidth;
-        var gridStepZ = (zMax - zMin) / GridHeight;
+        _gridStepX = (xMax - xMin) / GridWidth;
+        _gridStepZ = (zMax - zMin) / GridHeight;
         for (int i = 0; i < GridWidth; i++)
         {
             for (int k = 0; k < GridHeight; k++)
             {
-                var yAvg = GetAverageYValue(i, k, topLeft, gridStepX, gridStepZ);
-                var point = new Vector3(topLeft.x + i * gridStepX, yAvg, topLeft.z - k * gridStepZ);
+                var yAvg = GetAverageYValue(i, k, _topLeft, _gridStepX, _gridStepZ);
+                var point = new Vector3(_topLeft.x + i * _gridStepX, yAvg, _topLeft.z - k * _gridStepZ);
                 grid.Add(point);
             }
         }

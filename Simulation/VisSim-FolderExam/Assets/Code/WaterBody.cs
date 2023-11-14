@@ -156,10 +156,10 @@ public class WaterBody : MonoBehaviour
             var worldVertex2 = _vertices[Indices[i + 1]] + transform.position;
             var worldVertex3 = _vertices[Indices[i + 2]] + transform.position;
             Vector3 barycentricCoordinates = Utilities.Barycentric(
-                worldVertex1,
-                worldVertex2,
-                worldVertex3,
-                point
+                new Vector2(worldVertex1.x, worldVertex1.z),
+                new Vector2(worldVertex2.x, worldVertex2.z),
+                new Vector2(worldVertex3.x, worldVertex3.z),
+                new Vector2(point.x, point.z)
             );
             if (Utilities.IsInsideTriangle(barycentricCoordinates))
             {
