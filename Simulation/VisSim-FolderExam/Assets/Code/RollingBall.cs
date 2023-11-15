@@ -101,7 +101,7 @@ public class RollingBall : MonoBehaviour
         {
             if (_triangleID != -1)
             {
-                if (_timeStep >= 75)
+                if (_timeStep >= 200)
                 {
                     _timeStep = 0;
                     _controlPoints.Add(new KeyValuePair<int, Vector2>(_triangleID,  new Vector2(transform.position.x, transform.position.z)));

@@ -79,7 +79,8 @@ public class WaterBody : MonoBehaviour
                     ball.BecomeWaterBody(true);
                 }
             }
-            else if (WithinTriangles(_balls[i].gameObject.transform.position)) // ekstrem-vær effekt
+            // Ekstrem-vær effekt
+            else if (WithinTriangles(_balls[i].gameObject.transform.position))
             {
                 // print("Floating ball" + ball.gameObject.name);
                 

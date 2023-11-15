@@ -427,7 +427,7 @@ MonoBehaviour:
   rainDrops: []
   rainDropPrefab: {fileID: 2089043474199185864, guid: 82502ffd2e8bdd34ab8f64d43e4258c6,
     type: 3}
-  spawnIntervalRange: {x: 300, y: 250}
+  spawnIntervalRange: 100
 --- !u!4 &375051747
 Transform:
   m_ObjectHideFlags: 0
@@ -437,7 +437,7 @@ Transform:
   m_GameObject: {fileID: 375051745}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 391, y: 480, z: 614}
+  m_LocalPosition: {x: 899.4, y: 850, z: 3916.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -912,6 +912,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0258f29eff0c0e945bded17cda71e7e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  runSilent: 0
 --- !u!4 &1594387480
 Transform:
   m_ObjectHideFlags: 0
@@ -1086,8 +1087,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1597525897}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.34409702, y: -0.012395883, z: 0.0044932645, w: 0.9388416}
-  m_LocalPosition: {x: 405.2742, y: 731.07043, z: 93.400024}
+  m_LocalRotation: {x: 0.43254143, y: 0.0010643284, z: -0.000507403, w: 0.9016133}
+  m_LocalPosition: {x: 1130.6299, y: 1118.1931, z: 3676.8643}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

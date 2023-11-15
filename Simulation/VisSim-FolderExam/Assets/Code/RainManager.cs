@@ -12,10 +12,11 @@ public class RainManager : MonoBehaviour
     public TextMeshProUGUI rainCount;
     public int dropCount;
     public List<RollingBall> rainDrops = new();
+    private int _dropsSpawned;
     
     [SerializeField] private GameObject rainDropPrefab;
-    [SerializeField] private Vector2 spawnIntervalRange = Vector2.one * 10;
-    private const int MaxDropCount = 200;
+    [SerializeField] private float spawnIntervalRange = 100;
+    private const int MaxDropCount = 180;
     private bool _limitReached;
     private bool _rainActive;
     
@@ -37,7 +38,7 @@ public class RainManager : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        Vector3 size = new Vector3(spawnIntervalRange.x * 2, 0.3f, spawnIntervalRange.y * 2);
+        Vector3 size = new Vector3(spawnIntervalRange * 2, 0.3f, spawnIntervalRange * 2);
         Gizmos.DrawWireCube(transform.position, size);
     }
 
@@ -50,8 +51,8 @@ public class RainManager : MonoBehaviour
     
     Vector3 GetRandomPosition()
     {
-        float x = Random.Range(-spawnIntervalRange.x, spawnIntervalRange.x);
-        float z = Random.Range(-spawnIntervalRange.y, spawnIntervalRange.y);
+        float x = Random.Range(-spawnIntervalRange, spawnIntervalRange);
+        float z = Random.Range(-spawnIntervalRange, spawnIntervalRange);
         
         Vector3 position = transform.position;
 
@@ -69,13 +70,15 @@ public class RainManager : MonoBehaviour
             RainButton.Instance.LimitReached();
             return;
         }
-        if (dropCount >= MaxDropCount)
+        if (dropCount >= MaxDropCount || _dropsSpawned >= MaxDropCount)
         {
+            _dropsSpawned = 0;
             _limitReached = true;
             return;
         }
         var rainDrop = Instantiate(rainDropPrefab, GetRandomPosition(), Quaternion.identity);
         rainDrops.Add(rainDrop.GetComponent<RollingBall>());
+        _dropsSpawned++;
         dropCount++;
         rainCount.text = dropCount.ToString();
     }

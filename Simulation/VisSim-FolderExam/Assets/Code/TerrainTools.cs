@@ -6,8 +6,13 @@ using UnityEngine;
 
 public static class TerrainTools
 {
-    private const string XYZPath = "Assets/StreamingAssets/terrain.txt";
-    private const string TriangleIndicesPath = "Assets/StreamingAssets/triangles.txt";
+    public const string XYZPath = "Assets/StreamingAssets/terrain.txt";
+    public const string TriangleIndicesPath = "Assets/StreamingAssets/triangles.txt";
+    
+    // public const float XOffset = 260000f;
+    // public const float YOffset = 6660000f;
+    public const float XOffset = 428000f;
+    public const float YOffset = 6760000f;
     
     public static Vector3[] GetPoints()
     {

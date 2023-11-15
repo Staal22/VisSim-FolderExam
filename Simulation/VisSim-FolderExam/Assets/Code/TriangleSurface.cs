@@ -10,16 +10,20 @@ public class TriangleSurface : MonoBehaviour
     public List<Triangle> Triangles;
 
     // GridWith * GridHeight must not exceed 65535, otherwise the mesh will not be generated
-    private const int GridWidth = 50;
-    private const int GridHeight = 50;
-    private float _gridStepX = 0.1f;
-    private float _gridStepZ = 0.1f;
+    [SerializeField] private bool runSilent;
+    private const int GridResolution = 60;
+    private const int ReducedPointCount = 100000;
+    private int _gridWidth;
+    private int _gridHeight;
+    private float _gridStepX;
+    private float _gridStepZ;
     private Vector3 _topLeft = Vector3.zero;
     
     private MeshFilter _meshFilter;
     private MeshCollider _meshCollider;
     
     private Vector3[] _points;
+    private Vector3[] _reducedPoints;
     private Vector3[] _vertices;
     private int[] _indices;
     
@@ -31,6 +35,8 @@ public class TriangleSurface : MonoBehaviour
         }
         _meshFilter = GetComponent<MeshFilter>();
         _meshCollider = GetComponent<MeshCollider>();
+        _gridWidth = GridResolution;
+        _gridHeight = GridResolution;
     }
 
     private void Start()
@@ -39,7 +45,7 @@ public class TriangleSurface : MonoBehaviour
         for (int i = 0; i < _points.Length; i++)
         {
             var pos = _points[i];
-            var unityPos = new Vector3(pos.x - 260000f, pos.z, pos.y - 6664500f);
+            var unityPos = new Vector3(pos.x - TerrainTools.XOffset, pos.z, pos.y - TerrainTools.YOffset);
             _points[i] = unityPos;
         }
         CreateMesh();
@@ -116,6 +122,10 @@ public class TriangleSurface : MonoBehaviour
         _vertices = grid.ToArray();
 
         var triangles = GenerateTriangles(); // Generates the triangulation
+        if (runSilent)
+        {
+            return;
+        }
         _indices = triangles.SelectMany(t => t.Indices).ToArray();
         var indices = _indices;
         
@@ -124,14 +134,14 @@ public class TriangleSurface : MonoBehaviour
     
     private void SetUpVertices()
     {
-        const int vertices = GridHeight * GridWidth;
-        var step = _points.Length / vertices;
-        _vertices = new Vector3[vertices];
+        int points = ReducedPointCount;
+        int step = _points.Length / points;
+        _reducedPoints = new Vector3[points];
 
         int index = 0;
-        for (int i = 0; i < vertices; i++)
+        for (int i = 0; i < points; i++)
         {
-            _vertices[i] = _points[index];
+            _reducedPoints[i] = _points[index];
             index += step;
         }
     }
@@ -140,7 +150,7 @@ public class TriangleSurface : MonoBehaviour
     {
         float xMax = float.MinValue, zMax = float.MinValue, xMin = float.MaxValue, zMin = float.MaxValue;
 
-        foreach (Vector3 vertex in _vertices)
+        foreach (Vector3 vertex in _reducedPoints)
         {
             if (vertex.x > xMax) xMax = vertex.x;
             if (vertex.z > zMax) zMax = vertex.z;
@@ -155,11 +165,11 @@ public class TriangleSurface : MonoBehaviour
     {
         _topLeft = topLeft;
         var grid = new List<Vector3>();
-        _gridStepX = (xMax - xMin) / GridWidth;
-        _gridStepZ = (zMax - zMin) / GridHeight;
-        for (int i = 0; i < GridWidth; i++)
+        _gridStepX = (xMax - xMin) / _gridWidth;
+        _gridStepZ = (zMax - zMin) / _gridHeight;
+        for (int i = 0; i < _gridWidth; i++)
         {
-            for (int k = 0; k < GridHeight; k++)
+            for (int k = 0; k < _gridHeight; k++)
             {
                 var yAvg = GetAverageYValue(i, k, _topLeft, _gridStepX, _gridStepZ);
                 var point = new Vector3(_topLeft.x + i * _gridStepX, yAvg, _topLeft.z - k * _gridStepZ);
@@ -176,10 +186,10 @@ public class TriangleSurface : MonoBehaviour
         int triangleId = 0;
         for (int i = 0; i < _vertices.Length; i++)
         {
-            if (i % GridWidth == GridWidth - 1 || i / GridWidth == GridHeight - 1) continue;
+            if (i % _gridWidth == _gridWidth - 1 || i / _gridWidth == _gridHeight - 1) continue;
             
-            Triangles.Add(new Triangle(new Vector3[3] {_vertices[i], _vertices[i + GridWidth], _vertices[i + 1]}, new int[3] {i, i + GridWidth, i + 1}, triangleId++));
-            Triangles.Add(new Triangle(new Vector3[3] {_vertices[i + 1], _vertices[i + GridWidth], _vertices[i + GridWidth + 1]}, new int[3] {i + 1, i + GridWidth, i + GridWidth + 1}, triangleId++));
+            Triangles.Add(new Triangle(new [] {_vertices[i], _vertices[i + _gridWidth], _vertices[i + 1]}, new int[] {i, i + _gridWidth, i + 1}, triangleId++));
+            Triangles.Add(new Triangle(new [] {_vertices[i + 1], _vertices[i + _gridWidth], _vertices[i + _gridWidth + 1]}, new int[] {i + 1, i + _gridWidth, i + _gridWidth + 1}, triangleId++));
         }
         
         // map each vertex to the triangles it is part of
@@ -209,9 +219,13 @@ public class TriangleSurface : MonoBehaviour
                 }
             }
         }
-        
-        print("Number of vertices: " + _vertices.Length);
-        print("Number of triangles: " + Triangles.Count);
+
+        if (!runSilent)
+        {
+            print("Number of vertices: " + _vertices.Length);
+            print("Number of triangles: " + Triangles.Count);
+            print("Number of data points " + _reducedPoints.Length);
+        }
         return Triangles;
     }
 
@@ -234,14 +248,14 @@ public class TriangleSurface : MonoBehaviour
     {
         var pointsInSquare = new List<Vector3>();
         var yAvg = 0f;
-        for (int j = 0; j < _vertices.Length; j++)
+        for (int j = 0; j < _reducedPoints.Length; j++)
         {
-            if (_vertices[j].x >= topLeft.x + (i - (useNeighbouringSquares ? 1 : 0)) * gridStepX && 
-                _vertices[j].x < topLeft.x + (i + (useNeighbouringSquares ? 2 : 1)) * gridStepX &&
-                _vertices[j].z <= topLeft.z - (k - (useNeighbouringSquares ? 1 : 0)) * gridStepZ && 
-                _vertices[j].z > topLeft.z - (k + (useNeighbouringSquares ? 2 : 1)) * gridStepZ)
+            if (_reducedPoints[j].x >= topLeft.x + (i - (useNeighbouringSquares ? 1 : 0)) * gridStepX && 
+                _reducedPoints[j].x < topLeft.x + (i + (useNeighbouringSquares ? 2 : 1)) * gridStepX &&
+                _reducedPoints[j].z <= topLeft.z - (k - (useNeighbouringSquares ? 1 : 0)) * gridStepZ && 
+                _reducedPoints[j].z > topLeft.z - (k + (useNeighbouringSquares ? 2 : 1)) * gridStepZ)
             {
-                pointsInSquare.Add(_vertices[j]);
+                pointsInSquare.Add(_reducedPoints[j]);
             }
         }
         foreach (var pointSq in pointsInSquare)

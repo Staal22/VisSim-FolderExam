@@ -7,9 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    private string _xyzFilePath = "Assets/StreamingAssets/terrain.txt";
-    private string _triangulationFilePath = "Assets/StreamingAssets/triangles.txt";
-
     private TriangleSurface _triangleSurface;
     
     private void Awake()
@@ -20,20 +17,20 @@ public class MainMenu : MonoBehaviour
     public void OpenXYZTextFile()
     {
         // make absolute path
-        _xyzFilePath = Path.GetFullPath(_xyzFilePath);
+        var xyzFilePath = Path.GetFullPath(TerrainTools.XYZPath);
         
         // detect operating system
         #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             // open the file natively on windows
-            System.Diagnostics.Process.Start(_xyzFilePath);
+            System.Diagnostics.Process.Start(xyzFilePath);
         #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             // open the file natively on mac
-            _xyzFilePath = _xyzFilePath.Replace("\\", "/");
-            System.Diagnostics.Process.Start("open", XYZFilePath);
+            xyzFilePath = xyzFilePath.Replace("\\", "/");
+            System.Diagnostics.Process.Start("open", xyzFilePath);
         #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
             // open the file natively on linux
-            _xyzFilePath = _xyzFilePath.Replace("\\", "/");
-            System.Diagnostics.Process.Start("xdg-open", XYZFilePath);
+            xyzFilePath = xyzFilePath.Replace("\\", "/");
+            System.Diagnostics.Process.Start("xdg-open", xyzFilePath);
         #endif
     }
 
@@ -45,7 +42,8 @@ public class MainMenu : MonoBehaviour
         // format:
         // v1 v2 v3 | n1 n2 n3
         // v2 v3 v4 | n2 n3 n4
-        using (StreamWriter sw = new StreamWriter(_triangulationFilePath))
+        var triangulationFilePath = TerrainTools.TriangleIndicesPath;
+        using (StreamWriter sw = new StreamWriter(triangulationFilePath))
         {
             for (int i = 0; i < triangleInfo.Length / 6; i++)
             {
@@ -60,20 +58,20 @@ public class MainMenu : MonoBehaviour
         }
         
         // make absolute path
-        _triangulationFilePath = Path.GetFullPath(_triangulationFilePath);
+        triangulationFilePath = Path.GetFullPath(triangulationFilePath);
         
         // detect operating system
         #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             // open the file natively on windows
-            System.Diagnostics.Process.Start(_triangulationFilePath);
+            System.Diagnostics.Process.Start(triangulationFilePath);
         #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             // open the file natively on mac
-            _triangulationFilePath = _triangulationFilePath.Replace("\\", "/");
-            System.Diagnostics.Process.Start("open", TriangulationFilePath);
+            triangulationFilePath = triangulationFilePath.Replace("\\", "/");
+            System.Diagnostics.Process.Start("open", triangulationFilePath);
         #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
             // open the file natively on linux
-            _triangulationFilePath = _triangulationFilePath.Replace("\\", "/");
-            System.Diagnostics.Process.Start("xdg-open", TriangulationFilePath);
+            triangulationFilePath = triangulationFilePath.Replace("\\", "/");
+            System.Diagnostics.Process.Start("xdg-open", triangulationFilePath);
         #endif
     }
     
