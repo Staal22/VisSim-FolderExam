@@ -53,7 +53,6 @@ public class TriangleSurface : MonoBehaviour
         CreateMesh();
     }
 
-
     public void GetTriangleInfo(Action<int[]> callback)
     {
         StartCoroutine(FetchTriangleInfo(callback));

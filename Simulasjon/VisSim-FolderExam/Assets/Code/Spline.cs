@@ -88,8 +88,10 @@ public class Spline : MonoBehaviour
             return 0f;
         }
         
-        float a = (t - knots[i]) / (knots[i + degree] - knots[i]) * BSplineBasis(i, degree - 1, t, knots);
-        float b = (knots[i + degree + 1] - t) / (knots[i + degree + 1] - knots[i + 1]) * BSplineBasis(i + 1, degree - 1, t, knots);
+        var a = (t - knots[i]) / (knots[i + degree] - knots[i])
+                * BSplineBasis(i, degree - 1, t, knots);
+        var b = (knots[i + degree + 1] - t) / (knots[i + degree + 1] - knots[i + 1])
+                * BSplineBasis(i + 1, degree - 1, t, knots);
         return a + b;
         
     }
