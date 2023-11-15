@@ -1136,7 +1136,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1152676442}
   - component: {fileID: 1152676443}
-  - component: {fileID: 1152676444}
   m_Layer: 5
   m_Name: MainMenu
   m_TagString: Untagged
@@ -1177,20 +1176,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d25d40a17c87d474884203661cb71c8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1152676444
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1152676441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0258f29eff0c0e945bded17cda71e7e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridResolution: 100
-  runSilent: 1
+  triangleInfoPrefab: {fileID: 3594459431588330911, guid: 8da1ee8be5934074bb1f8e27d0a66ea1,
+    type: 3}
 --- !u!1 &1236510165
 GameObject:
   m_ObjectHideFlags: 0
@@ -1836,7 +1823,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "2.3 - \xC5pne tekstfil med triangulering"
+  m_text: 2.3 - Generer tekstfil med triangulering
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}

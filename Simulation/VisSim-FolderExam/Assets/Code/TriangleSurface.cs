@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class TriangleSurface : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class TriangleSurface : MonoBehaviour
     private const int ReducedPointCount = 100000;
     private int _gridWidth;
     private int _gridHeight;
+    private bool _trianglesGenerated;
     private float _gridStepX;
     private float _gridStepZ;
     private Vector3 _topLeft = Vector3.zero;
@@ -50,9 +52,25 @@ public class TriangleSurface : MonoBehaviour
         }
         CreateMesh();
     }
-    
-    public int[] GetTriangleInfo()
+
+
+    public void GetTriangleInfo(Action<int[]> callback)
     {
+        StartCoroutine(FetchTriangleInfo(callback));
+    }
+    
+    private IEnumerator FetchTriangleInfo(Action<int[]> callback)
+    {
+        yield return new WaitUntil(() => _trianglesGenerated);
+
+        var output = GenerateOutput();
+
+        callback?.Invoke(output);
+    }
+    
+    private int[] GenerateOutput()
+    {
+        
         // output example
         // idx1, idx2, idx3, neighbour1, neighbour2, neighbour3
         var output = new int[Triangles.Count * 6];
@@ -226,6 +244,7 @@ public class TriangleSurface : MonoBehaviour
             print("Number of triangles: " + Triangles.Count);
             print("Number of data points " + _reducedPoints.Length);
         }
+        _trianglesGenerated = true;
         return Triangles;
     }
 

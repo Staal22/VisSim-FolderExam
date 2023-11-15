@@ -7,12 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    private TriangleSurface _triangleSurface;
-    
-    private void Awake()
-    {
-        _triangleSurface = GetComponent<TriangleSurface>();
-    }
+    [SerializeField] private GameObject triangleInfoPrefab;
 
     public void OpenXYZTextFile()
     {
@@ -21,8 +16,8 @@ public class MainMenu : MonoBehaviour
         
         // detect operating system
         #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-            // open the file natively on windows
-            System.Diagnostics.Process.Start(xyzFilePath);
+        // open the file natively on windows
+        System.Diagnostics.Process.Start(xyzFilePath);
         #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             // open the file natively on mac
             xyzFilePath = xyzFilePath.Replace("\\", "/");
@@ -36,8 +31,13 @@ public class MainMenu : MonoBehaviour
 
     public void OpenTriangulationTextFile()
     {
-        var triangleInfo = _triangleSurface.GetTriangleInfo();
+        var triangleInfoPrefabInstance = Instantiate(triangleInfoPrefab, Vector3.zero, Quaternion.identity);
         
+        triangleInfoPrefabInstance.GetComponent<TriangleSurface>().GetTriangleInfo(TriangulationTextFileCallback);
+    }
+
+    private void TriangulationTextFileCallback(int[] triangleInfo)
+    {
         // write to file
         // format:
         // v1 v2 v3 | n1 n2 n3
@@ -62,8 +62,8 @@ public class MainMenu : MonoBehaviour
         
         // detect operating system
         #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-            // open the file natively on windows
-            System.Diagnostics.Process.Start(triangulationFilePath);
+        // open the file natively on windows
+        System.Diagnostics.Process.Start(triangulationFilePath);
         #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             // open the file natively on mac
             triangulationFilePath = triangulationFilePath.Replace("\\", "/");
