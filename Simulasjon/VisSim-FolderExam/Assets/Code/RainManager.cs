@@ -29,8 +29,7 @@ public class RainManager : MonoBehaviour
     {
         if (!_rainActive)
             return;
-        // spawn a raindrop every 0.1 seconds using fixed time
-        if (Time.fixedTime % 0.1f < Time.fixedDeltaTime)
+        if (Time.fixedTime % 0.15f < Time.fixedDeltaTime)
         {
             SpawnRainDrop();
         }

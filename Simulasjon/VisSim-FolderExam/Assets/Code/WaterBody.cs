@@ -53,6 +53,26 @@ public class WaterBody : MonoBehaviour
         _mesh.RecalculateNormals();
         _mesh.RecalculateBounds();
         _meshFilter.mesh = _mesh;
+        
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 5 * gameObject.transform.localScale.x);
+        foreach (var hitCollider in hitColliders)
+        {
+            RollingBall rollingBall = hitCollider.GetComponent<RollingBall>();
+            if (rollingBall != null)
+            {
+                _balls.Add(rollingBall);
+                rollingBall.OwningWaterBody = this;
+                _isActive = true;
+                rollingBall.onRollingBallDestruction.AddListener(() => RemoveRollingBall(rollingBall));
+            }
+            // var waterBody = hitCollider.GetComponent<WaterBody>();
+            // if (waterBody != null && waterBody != this)
+            // {
+            //     // merge water bodies
+            //     Expand();
+            //     Destroy(waterBody.gameObject);
+            // }
+        }
     }
 
     private void FixedUpdate()
@@ -70,17 +90,17 @@ public class WaterBody : MonoBehaviour
                 _balls.RemoveAt(i);
                 continue;
             }
-            if (_balls[i].isRainDrop)
+            if (ball.isRainDrop)
             {
                 // if within one of the two triangles of water mesh, consume it and expand
-                if (WithinTriangles(_balls[i].gameObject.transform.position))
+                if (WithinTriangles(ball.gameObject.transform.position))
                 {
                     Expand();
                     ball.BecomeWaterBody(true);
                 }
             }
             // Ekstrem-vær effekt
-            else if (WithinTriangles(_balls[i].gameObject.transform.position))
+            else if (WithinTriangles(ball.gameObject.transform.position) && ball.OwningWaterBody == this)
             {
                 // print("Floating ball" + ball.gameObject.name);
                 
@@ -103,16 +123,17 @@ public class WaterBody : MonoBehaviour
         if (rollingBall != null)
         {
             _balls.Add(rollingBall);
+            rollingBall.OwningWaterBody = this;
             _isActive = true;
             rollingBall.onRollingBallDestruction.AddListener(() => RemoveRollingBall(rollingBall));
         }
-        var waterBody = other.gameObject.GetComponent<WaterBody>();
-        if (waterBody != null)
-        {
-            // merge water bodies
-            Expand();
-            Destroy(waterBody.gameObject);
-        }
+        // var waterBody = other.gameObject.GetComponent<WaterBody>();
+        // if (waterBody != null)
+        // {
+        //     // merge water bodies
+        //     Expand();
+        //     Destroy(waterBody.gameObject);
+        // }
     }
 
     private void OnTriggerExit(Collider other)
@@ -120,7 +141,7 @@ public class WaterBody : MonoBehaviour
         var rollingBall = other.gameObject.GetComponent<RollingBall>();
         if (rollingBall != null)
         {
-            if (!rollingBall.isRainDrop)
+            if (!rollingBall.isRainDrop && rollingBall.OwningWaterBody == this)
                 rollingBall.StopFloating();
             rollingBall.onRollingBallDestruction.RemoveListener(() => RemoveRollingBall(rollingBall));
             _balls.Remove(rollingBall);

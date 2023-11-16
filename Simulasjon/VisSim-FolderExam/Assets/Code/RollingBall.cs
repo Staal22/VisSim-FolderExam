@@ -14,7 +14,9 @@ public class RollingBall : MonoBehaviour
     [SerializeField] private GameObject waterBodyPrefab;
     private const float Mass = 1;
     private static readonly Vector3 Gravity = Physics.gravity * Mass;
-    private const float VelocityThreshold = 0.1f;
+    private const float VelocityThreshold = 0.2f;
+    
+    [NonSerialized] public WaterBody OwningWaterBody;
     
     private readonly List<KeyValuePair<int, Vector2>> _controlPoints = new();
     private Action<List<KeyValuePair<int, Vector2>>> _onBecomeWaterBody;
